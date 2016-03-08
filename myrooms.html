@@ -1,0 +1,33 @@
+ <!DOCTYPE html>
+<html>
+<head>
+		<title>List Manager</title>
+	</head>
+	<body>
+	<h1>You are authenticated</h1>
+	<button id="refreshToken" type="button" onClick="refreshToken()">Refresh Token</button>
+	<div>
+		<h2>My Rooms</h2>
+		<select id="rooms" hidden>
+		</select>
+
+		<button id="roomButton" type="button" onClick="roomsClick()">List my rooms</button>
+	</div>
+	<hr>
+	<div>
+		<h2>Add Room</h2>
+	</div>
+	<hr>
+	<div id="dvImportSegments" class="fileupload ">
+    <fieldset>
+        <legend>Upload your CSV File</legend>
+            <input type="file" name="File Upload" id="txtFileUpload" accept=".csv" />
+            <button id="upload" type="button" onClick="upload()">Upload List</button>
+   </fieldset>
+	</div>
+	</div>
+	</body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.csv.js"></script>
+	<script type="text/javascript" src="js/listmgr.js"></script>
+</html>

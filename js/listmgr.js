@@ -1,6 +1,7 @@
-var sparkToken = localStorage.getItem("sparkToken");
+var emailNames = [];
 var myRooms = [];
 var newRoom = {};
+var sparkToken = localStorage.getItem("sparkToken");
 
 console.log(sparkToken);
 
@@ -12,6 +13,37 @@ $('select[name="rooms"]').change(function() {
     var test = $("#rooms").val();
     console.log(test);
   });
+
+function addContacts(){
+	// capture new roomId
+	roomId = newRoom.id;
+
+	// loop through contacts and add them to room
+	for (email in emailNames){
+		personEmail = email;
+		console.log(personEmail);
+		var body = JSON.stringify({roomId: roomId, personEmail: personEmail});
+
+		// setup HTTPS request
+		xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function(){
+			if(xhttp.readyState == 4){
+				if (xhttp.status == 200) {
+					var response = JSON.parse(xhttp.responseText);
+					newRoom = response;
+					console.log(newRoom.id);
+				}else{
+					console.log('Error: ' + xhttp.statusText);
+				}
+				$("#createRoom").removeClass('active');
+			}
+		}
+		xhttp.open('POST', 'https://api.ciscospark.com/v1/memberships', true);
+		xhttp.setRequestHeader('Content-Type', 'application/json');
+		xhttp.setRequestHeader('Authorization', sparkToken);
+		xhttp.send(body);
+	};
+}
 
 function createRoom(){
 	$("#createRoom").toggleClass('active');
@@ -88,24 +120,28 @@ function browserSupportFileUpload() {
 function upload(evt) {
 	if (!browserSupportFileUpload()) {
 	    alert('The File APIs are not fully supported in this browser!');
-	    } else {
-	    	console.log("upload triggered");
-	        var data = null;
-	        var file = evt.target.files[0];
-	        var reader = new FileReader();
-	        reader.readAsText(file);
-	        reader.onload = function(event) {
-	            var csvData = event.target.result;
-	            data = $.csv.toArrays(csvData);
-	            if (data && data.length > 0) {
-	              //lert('Imported -' + data.length + '- rows successfully!');
-	              console.log(data);
-	            } else {
-	                alert('No data to import!');
-	            }
-	        };
-	        reader.onerror = function() {
-	            alert('Unable to read ' + file.fileName);
-	        };
-	    }
+    } else {
+    	console.log("upload triggered");
+        var file = evt.target.files[0];
+        var reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = function(event) {
+            var csvData = event.target.result;
+            if (csvData && csvData.length > 0) {
+              emailNames = csvData.split("\n");
+              console.log(emailNames);
+            } else {
+                alert('No data to import!');
+            }
+        	displayUserCount();
+        };
+        reader.onerror = function() {
+            alert('Unable to read ' + file.fileName);
+        };
 	}
+}
+function displayUserCount() {
+	numUsers = emailNames.length;
+	$( "#blah" ).html("Read " + numUsers + " users from file");
+
+}

@@ -1,8 +1,43 @@
 var sparkToken = localStorage.getItem("sparkToken");
+var myRooms = [];
+var newRoom = {};
 
 console.log(sparkToken);
 
+$("#refreshToken").click(function(){
+	refreshToken();
+});
+
+$('select[name="rooms"]').change(function() {
+    var test = $("#rooms").val();
+    console.log(test);
+  });
+
+function createRoom(){
+	$("#createRoom").toggleClass('active');
+	var title = $("#newRoom").val();
+	var body = JSON.stringify({title: title});
+	xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function(){
+		if(xhttp.readyState == 4){
+			if (xhttp.status == 200) {
+				var response = JSON.parse(xhttp.responseText);
+				newRoom = response;
+				console.log(newRoom.id);
+			}else{
+				console.log('Error: ' + xhttp.statusText);
+			}
+			$("#createRoom").removeClass('active');
+		}
+	}
+	xhttp.open('POST', 'https://api.ciscospark.com/v1/rooms', true);
+	xhttp.setRequestHeader('Content-Type', 'application/json');
+	xhttp.setRequestHeader('Authorization', sparkToken);
+	xhttp.send(body);
+}
+
 function roomsClick(){
+	$("#roomButton").toggleClass('active');
 	xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function(){
 		if(xhttp.readyState == 4){
@@ -10,8 +45,10 @@ function roomsClick(){
 				var rooms = JSON.parse(xhttp.responseText);
 				for(var i = 0; i < rooms['items'].length; i++){
 					console.log(rooms['items'][i].title);
+					myRooms.push(rooms['items'][i]);
 					var roomName = rooms['items'][i].title;
-					$("#rooms").append("<option value="+roomName +">"+roomName+"</option>");
+					var roomId = rooms['items'][i].id;
+					$("#rooms").append("<option value="+roomId+">"+roomName+"</option>");
 				}
 				$("#rooms").show();
 				$("#roomButton").hide();
@@ -30,6 +67,10 @@ function refreshToken(){
 	localStorage.removeItem("sparkToken");
 	window.location="spark_auth.html";
 }
+
+
+///////////////////////////////////////
+// File upload stuff
 
 // The event listener for the file upload
 document.getElementById('txtFileUpload').addEventListener('change', upload, false);

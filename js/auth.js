@@ -42,7 +42,7 @@ function codeClick() {
 // If so user has already authenticated, and  page has been reloaded via the Redirect URI
 window.onload = function(e) {
 	if (localStorage.getItem("sparkToken") != null) {
-		window.location="myrooms.html";
+		window.location="powerpack.html";
 	}else{
 		//document.getElementById('redirectUri').value=window.location.href.split("?")[0]; // Detect the current page's base URL
 		var params = parseQueryStr(window.location.search.substring(1)); // Parse the query string params into a dictionary

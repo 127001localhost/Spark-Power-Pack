@@ -1,48 +1,114 @@
 var emailNames = [];
 var myRooms = [];
-var newRoom = {};
+var selectedRoom = {};
 var sparkToken = localStorage.getItem("sparkToken");
 
 console.log(sparkToken);
+
+//////////////////////////////////////
+// Site Layout Control
+/////////////////////////////////////
+var importType = 0;
+// 1 = existing room 
+// 2 = new room
+
+$("#existing").click(function() {
+	importType = 1;
+	bread(1);
+	$("#step1a").show();
+});
+
+$("#new").click(function() {
+	importType = 2;
+	bread(1);
+	$("#step1b").show();
+});
 
 $("#refreshToken").click(function(){
 	refreshToken();
 });
 
+$("#startOver").click(function(){
+	startOver();
+});
+
 $('select[name="rooms"]').change(function() {
-    var test = $("#rooms").val();
-    console.log(test);
+	bread(2);
+    var i = $("#rooms").val();
+    console.log(myRooms[i]);
+    selectedRoom = myRooms[i];
+	$("#dvImportSegments").prepend("<h3>Select a list of contacts to add to the "+myRooms[i].title+" room.</h3>");
   });
 
-function addContacts(){
-	// capture new roomId
-	roomId = newRoom.id;
+function bread(step){
+	switch(step) {
+		case 1:
+			$("#intro").hide();
+			$("#bread").show();
+			$("#bread1").addClass("active");
+			$("#bread2").removeClass("active");
+			$("#bread3").removeClass("active");
+			break;
+		case 2:
+   			$("#step1a").hide();
+			$("#step1b").hide();
+			$("#bread1").removeClass("active");
+			$("#bread2").addClass("active");
+			$("#bread3").removeClass("active");
+			$("#step2").show();
+			break;
+		case 3:
+			$("#bread").show();
+			$("#bread1").removeClass("active");
+			$("#bread2").removeClass("active");
+			$("#bread3").addClass("active");
+			break;
+		default:
+			$("#bread").hide();
+			$("#bread1").removeClass("active");
+			$("#bread2").removeClass("active");
+			$("#bread3").removeClass("active");
+			break;
+	};
+}
 
+//////////////////////////////////////
+
+function add(){
 	// loop through contacts and add them to room
-	for (email in emailNames){
-		personEmail = email;
-		console.log(personEmail);
-		var body = JSON.stringify({roomId: roomId, personEmail: personEmail});
+	for (var i = 0; i < emailNames.length; i++){
+		personEmail = emailNames[i];
+		if (personEmail == "antan@cisco.com"){
+			console.log("We have an Ang");
+		}else{
+			console.log("added a new person: " +personEmail);
+		};
+		addContact(selectedRoom.id, emailNames[i]);
+	}
+	$("#step2").hide();
+	$("#step3").show();
+	bread(3);
+}
 
-		// setup HTTPS request
-		xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function(){
-			if(xhttp.readyState == 4){
-				if (xhttp.status == 200) {
-					var response = JSON.parse(xhttp.responseText);
-					newRoom = response;
-					console.log(newRoom.id);
-				}else{
-					console.log('Error: ' + xhttp.statusText);
-				}
-				$("#createRoom").removeClass('active');
+function addContact(roomId, personEmail){
+	var body = JSON.stringify({roomId: roomId, personEmail: personEmail});
+	var sucess = 0;
+	// setup HTTPS request
+	xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function(){
+		if(xhttp.readyState == 4){
+			if (xhttp.status == 200) {
+				//var response = JSON.parse(xhttp.responseText);
+				console.log(xhttp.status);
+			}else{
+				console.log('Error: ' + xhttp.statusText);
 			}
 		}
-		xhttp.open('POST', 'https://api.ciscospark.com/v1/memberships', true);
-		xhttp.setRequestHeader('Content-Type', 'application/json');
-		xhttp.setRequestHeader('Authorization', sparkToken);
-		xhttp.send(body);
-	};
+	}
+	xhttp.open('POST', 'https://api.ciscospark.com/v1/memberships', true);
+	xhttp.setRequestHeader('Content-Type', 'application/json');
+	xhttp.setRequestHeader('Authorization', sparkToken);
+	xhttp.send(body);
 }
 
 function createRoom(){
@@ -54,12 +120,15 @@ function createRoom(){
 		if(xhttp.readyState == 4){
 			if (xhttp.status == 200) {
 				var response = JSON.parse(xhttp.responseText);
-				newRoom = response;
+				selectedRoom = response;
 				console.log(newRoom.id);
 			}else{
 				console.log('Error: ' + xhttp.statusText);
 			}
 			$("#createRoom").removeClass('active');
+			bread(2);
+			$("#dvImportSegments").prepend("<h3>Select a list of contacts to add to the "+title+" room.</h3>");
+
 		}
 	}
 	xhttp.open('POST', 'https://api.ciscospark.com/v1/rooms', true);
@@ -70,6 +139,7 @@ function createRoom(){
 
 function roomsClick(){
 	$("#roomButton").toggleClass('active');
+	var i = 0;
 	xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function(){
 		if(xhttp.readyState == 4){
@@ -80,9 +150,10 @@ function roomsClick(){
 					myRooms.push(rooms['items'][i]);
 					var roomName = rooms['items'][i].title;
 					var roomId = rooms['items'][i].id;
-					$("#rooms").append("<option value="+roomId+">"+roomName+"</option>");
+					$("#rooms").append("<option value="+i+">"+roomName+"</option>");
 				}
-				$("#rooms").show();
+				i++
+				$("#roomForm").show();
 				$("#roomButton").hide();
 			}else{
 				console.log('Error: ' + xhttp.statusText);
@@ -99,6 +170,10 @@ function refreshToken(){
 	localStorage.removeItem("sparkToken");
 	window.location="spark_auth.html";
 }
+
+function startOver(){
+	location.reload();
+};
 
 
 ///////////////////////////////////////
@@ -142,6 +217,16 @@ function upload(evt) {
 }
 function displayUserCount() {
 	numUsers = emailNames.length;
-	$( "#blah" ).html("Read " + numUsers + " users from file");
+	var HTML = "<h3>Read " + numUsers + " users from file</h3>";
+	if (numUsers > 1){
+		HTML += "<table class=\"table table-condensed\"><th>Email Address</th>";
+		for(i in emailNames){
+			HTML += "<tr><td>"+emailNames[i]+"</td></tr>";
+		};
+		HTML += "</table>";
+		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\"add()\">Add Contacts</button>";
+	};
+	$("#dvImportSegments").hide();
+	$( "#displayContacts" ).html(HTML);
 
 }

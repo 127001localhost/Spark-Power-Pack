@@ -31,7 +31,7 @@ function codeClick() {
 	//Build the request URL.  The base URL and next 4 items are typically always the same for Spark web apps
 	var requestUrl = 'https://api.ciscospark.com/v1/authorize?' + //Spark OAuth2 base URL
 		'response_type=code&' + // Requesting the OAuth2 'Authentication Code' flow
-		'scope='+ encodeURIComponent('spark:rooms_write spark:rooms_read spark:memberships_read spark:memberships_write') + '&' + // Requested permission, i.e. Spark room info
+		'scope='+ encodeURIComponent('spark:rooms_write spark:rooms_read spark:memberships_read spark:memberships_write spark:people_read') + '&' + // Requested permission, i.e. Spark room info
 		// The following items are provided by the developer in the source code/config or generated dynamically at run time
 		'state=' + encodeURIComponent(randomString(63)) + '&' +	// Random string for OAuth2 nonce replay protection
 		'client_id=' + encodeURIComponent(appClientId) + '&' + // The custom app Client ID
@@ -56,6 +56,29 @@ window.onload = function(e) {
 		}
 	}
 }
+
+function me(){
+	console.log("writing local storage");
+	xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function(){
+		if(xhttp.readyState == 4){
+			if (xhttp.status == 200) {
+				me = JSON.parse(xhttp.responseText);
+				localStorage.setItem("myId", me.id);
+				localStorage.setItem("myEmail", me.emails[0]);
+				localStorage.setItem("displayName", me.displayName);
+				localStorage.setItem("myAvatar", me.avatar);
+				window.location="myrooms.html";
+			}else{
+				console.log('Error: ' + xhttp.statusText);
+			}
+		}
+	}
+	xhttp.open('GET', 'https://api.ciscospark.com/v1/people/me', true);
+	xhttp.setRequestHeader('Content-Type', 'application/json');
+	xhttp.setRequestHeader('Authorization', sparkToken);
+	xhttp.send();
+}
 // Step #3: Fires when the user clicks the 'Request Access Token' button
 // Takes the auth code and requests an access token
 function tokenClick() {
@@ -70,7 +93,7 @@ function tokenClick() {
 				localStorage.setItem("refreshToken", authInfo['refresh_token']);
 				localStorage.setItem("expires_in", authInfo['exires_in']);
 				localStorage.setItem("refresh_token_expres", authInfo['refresh_token_expires']);
-				window.location="myrooms.html";
+				me(); 
 			} else alert('Error requesting access token: ' + xhttp.statusText)
  		}
 	}

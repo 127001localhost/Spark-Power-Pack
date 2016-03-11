@@ -168,7 +168,7 @@ function roomsClick(){
 
 function refreshToken(){
 	localStorage.removeItem("sparkToken");
-	window.location="spark_auth.html";
+	window.location="index.html";
 }
 
 function startOver(){

@@ -68,7 +68,7 @@ function me(){
 				localStorage.setItem("myEmail", me.emails[0]);
 				localStorage.setItem("displayName", me.displayName);
 				localStorage.setItem("myAvatar", me.avatar);
-				window.location="myrooms.html";
+				window.location="powerpack.html";
 			}else{
 				console.log('Error: ' + xhttp.statusText);
 			}

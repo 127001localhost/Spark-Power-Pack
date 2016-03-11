@@ -2,7 +2,6 @@ var emailNames = [];
 var myRooms = [];
 var selectedRoom = {};
 var sparkToken = localStorage.getItem("sparkToken");
-
 console.log(sparkToken);
 
 //////////////////////////////////////
@@ -76,14 +75,21 @@ function bread(step){
 
 function add(){
 	// loop through contacts and add them to room
+	//var roomOwner = localStorage.getItem("myEmail");
+	//console.log("RoomOwner: ", roomOwner);
 	for (var i = 0; i < emailNames.length; i++){
 		personEmail = emailNames[i];
-		if (personEmail == "antan@cisco.com"){
-			console.log("We have an Ang");
-		}else{
-			console.log("added a new person: " +personEmail);
-		};
 		addContact(selectedRoom.id, emailNames[i]);
+		console.log(emailNames[i] + " Added to room");
+		/*
+		if (personEmail == roomOwner){
+			console.log("RoomOwner: " + personEmail + " Not added to the room");
+		}else{
+			addContact(selectedRoom.id, emailNames[i]);
+			console.log(emailNames[i] + " Added to room");
+
+		};*/
+		
 	}
 	$("#step2").hide();
 	$("#step3").show();
@@ -193,6 +199,10 @@ function browserSupportFileUpload() {
 
 // Method that reads and processes the selected file
 function upload(evt) {
+	var csvDataList = [];
+    var emailUser =[];
+	var roomOwner = localStorage.getItem("myEmail");
+	console.log("RoomOwner: ", roomOwner);
 	if (!browserSupportFileUpload()) {
 	    alert('The File APIs are not fully supported in this browser!');
     } else {
@@ -203,8 +213,23 @@ function upload(evt) {
         reader.onload = function(event) {
             var csvData = event.target.result;
             if (csvData && csvData.length > 0) {
-              emailNames = csvData.split("\n");
-              console.log(emailNames);
+              console.log("csvData: " + csvData);
+              csvDataList = csvData.split("\n");
+			  for (var i = 0; i < csvDataList.length; i++){
+			  	email = csvDataList[i].replace(/\s+/g, '');
+			  	if (roomOwner != email){  //if email does not belong to the roomOwner
+			  	emailUser.push(email);
+			  	console.log("emailUser: " + emailUser);
+			  	};
+			  }
+			  emailUser.push("") //push an empty email record at the end
+			  emailNames = emailUser;
+			  console.log("emailNames after removing empty space: ", emailNames);
+			  console.log("completed emailUser: ", emailUser);
+              console.log("all emails: " + "'" + emailNames + "'");
+              emailNames = findUnique(emailNames);  //remove any duplicate emails
+              emailNames = emailNames.slice(0,-1);	//remove the empty field at the end of the array
+              console.log("unique emails only from uniqueEmailName : ", emailNames);
             } else {
                 alert('No data to import!');
             }
@@ -217,7 +242,7 @@ function upload(evt) {
 }
 function displayUserCount() {
 	numUsers = emailNames.length;
-	var HTML = "<h3>Read " + numUsers + " users from file</h3>";
+	var HTML = "<h3>Read " + numUsers + " unique users from file</h3>";
 	if (numUsers > 1){
 		HTML += "<table class=\"table table-condensed\"><th>Email Address</th>";
 		for(i in emailNames){
@@ -230,3 +255,14 @@ function displayUserCount() {
 	$( "#displayContacts" ).html(HTML);
 
 }
+
+function findUnique(arr) {
+    var result = [];
+    arr.forEach(function (d) {
+        if (result.indexOf(d) === -1)
+            result.push(d);
+    });
+    return result;
+}
+
+

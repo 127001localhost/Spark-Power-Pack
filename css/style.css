@@ -33,3 +33,14 @@
 .has-spinner.btn-large.active .spinner {
     width: 19px;
 }
+
+.user {
+  display: inline-block;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  margin-right:10px;
+}

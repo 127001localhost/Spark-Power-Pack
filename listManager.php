@@ -48,6 +48,7 @@
 			</div>
 		</div>
 		<div class="row" id="step2" hidden>
+			<h4>If you are unsure on how to format your .csv file, <a href="example.csv">Click HERE</a> to download a sample.</h4>
 			<div id="dvImportSegments" class="fileupload" >
 				<div class="form-group">
 		        	<input type="file" name="File Upload" id="txtFileUpload" accept=".csv" />

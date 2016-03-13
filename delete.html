@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 	<title>Exodus</title>
 </head>
 <body>
@@ -22,15 +23,19 @@
 
       
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" id="refreshToken">Log Out</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="powerpack.html">List Manager</a></li>
-            <li><a href="delete.html">Exodus</a></li>
+            <li><a href="listManager.html">List Manager</a></li>
+            <li><a href="#">Exodus</a></li>
             <li><a href="#">Something else here</a></li>
             <li role="separator" class="divider"></li>
             <li><a href="#">Separated link</a></li>
+          </ul>
+        </li>
+        <li class="dropdown" id="profile">
+          <ul class="dropdown-menu">
+            <li><a href="#" id="refreshToken">Log Out</a></li>
           </ul>
         </li>
       </ul>
@@ -39,7 +44,7 @@
 </nav>
 	<div class="container">
 		<div class="jumbotron" id="intro">
-			<h2>Exodus</h2>
+			<h2>Exodus:</h2>
 			<p>Remove yourself from multiple rooms at one time!<p>
 			<button class="btn btn-warning has-spinner" id="listRooms" type="button" onClick="roomsClick()">List Rooms <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
 		</div>
@@ -57,5 +62,6 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.csv.js"></script>
+  <script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript" src="js/delete.js"></script>
 </html>

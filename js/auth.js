@@ -31,11 +31,12 @@ function codeClick() {
 	//Build the request URL.  The base URL and next 4 items are typically always the same for Spark web apps
 	var requestUrl = 'https://api.ciscospark.com/v1/authorize?' + //Spark OAuth2 base URL
 		'response_type=code&' + // Requesting the OAuth2 'Authentication Code' flow
-		'scope='+ encodeURIComponent('spark:rooms_write spark:rooms_read spark:memberships_read spark:memberships_write spark:people_read') + '&' + // Requested permission, i.e. Spark room info
+		'scope='+ encodeURIComponent('spark:messages_read spark:messages_write spark:rooms_write spark:rooms_read spark:memberships_read spark:memberships_write spark:people_read') + '&' + // Requested permission, i.e. Spark room info
 		// The following items are provided by the developer in the source code/config or generated dynamically at run time
 		'state=' + encodeURIComponent(randomString(63)) + '&' +	// Random string for OAuth2 nonce replay protection
 		'client_id=' + encodeURIComponent(appClientId) + '&' + // The custom app Client ID
-		'redirect_uri=' + encodeURIComponent(appRedirectUri); // The custom app's Redirect URI
+		'redirect_uri=' + encodeURIComponent(appRedirectUri) + '&' + // The custom app's Redirect URI
+		'service=spark'; 
 	window.location = requestUrl; // Redirect the browser to the OAuth2 kickoff URL
 }
 // Step #2: On page load, check if the 'code=' query param is present
@@ -68,7 +69,7 @@ function me(){
 				localStorage.setItem("myEmail", me.emails[0]);
 				localStorage.setItem("displayName", me.displayName);
 				localStorage.setItem("myAvatar", me.avatar);
-				window.location="myrooms.html";
+				window.location="powerpack.html";
 			}else{
 				console.log('Error: ' + xhttp.statusText);
 			}

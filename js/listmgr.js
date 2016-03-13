@@ -145,31 +145,31 @@ function createRoom(){
 
 function roomsClick(){
 	$("#roomButton").toggleClass('active');
-	var i = 0;
-	xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function(){
-		if(xhttp.readyState == 4){
-			if (xhttp.status == 200) {
-				var rooms = JSON.parse(xhttp.responseText);
-				for(var i = 0; i < rooms['items'].length; i++){
-					console.log(rooms['items'][i].title);
-					myRooms.push(rooms['items'][i]);
-					var roomName = rooms['items'][i].title;
-					var roomId = rooms['items'][i].id;
-					$("#rooms").append("<option value="+i+">"+roomName+"</option>");
-				}
-				i++
-				$("#roomForm").show();
+
+	$.ajax({
+		url: "https://api.ciscospark.com/v1/rooms?max=50",
+		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+		cache: false,
+		method: "GET",
+		statusCode: {
+			502: function(){
 				$("#roomButton").hide();
-			}else{
-				console.log('Error: ' + xhttp.statusText);
+				$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
+
 			}
 		}
-	}
-	xhttp.open('GET', 'https://api.ciscospark.com/v1/rooms?max=10', true);
-	xhttp.setRequestHeader('Content-Type', 'application/json');
-	xhttp.setRequestHeader('Authorization', sparkToken);
-	xhttp.send();
+	}).done(function(data){
+		for(var i = 0; i < data['items'].length; i++){
+			//console.log(data['items'][i].title);
+			myRooms.push(data['items'][i]);
+			var roomName = data['items'][i].title;
+			var roomId = data['items'][i].id;
+
+			$("#rooms").append("<option value="+i+">"+roomName+"</option>");
+		}
+		$("#roomForm").show();
+		$("#roomButton").hide();
+	});
 }
 
 function refreshToken(){

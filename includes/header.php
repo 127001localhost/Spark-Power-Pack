@@ -1,4 +1,6 @@
- <!DOCTYPE html>
+<?php
+$header = '
+<!DOCTYPE html>
 <html>
 <head>
   <link rel="stylesheet" href="css/style.css">
@@ -18,7 +20,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="powerpack.html"> <span><img src="images/logo_spark_256px.png" height="30px"> Power Pack</span></a>
+      <a class="navbar-brand" href="powerpack.php"> <span><img src="images/logo_spark_256px.png" height="30px"> Power Pack</span></a>
     </div>
 
       
@@ -26,9 +28,9 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="carboncpy.html">Carbon Copy</a></li>
-            <li><a href="delete.html">Exodus</a></li>
-            <li><a href="listManager.html">List Manager</a></li>
+            <li><a href="carboncpy.php">Carbon Copy</a></li>
+            <li><a href="delete.php">Exodus</a></li>
+            <li><a href="listManager.php">List Manager</a></li>
           </ul>
         </li>
          <li class="dropdown">
@@ -47,17 +49,5 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-  <div class="container">
-    <div class="jumbotron" id="intro">
-      <h2>Welcome to the Spark Power Pack!</h2>
-      <p>We have created a collection of tools to enable repetitive tasks in bulk. Click Tools in the upper right to get started.<p>
-    </div>
-      
-  </div>
-</body>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-  <script type="text/javascript" src="js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="js/jquery.csv.js"></script>
-  <script type="text/javascript" src="js/common.js"></script>
-  <script type="text/javascript" src="js/listmgr.js"></script>
-</html>
+'
+?>

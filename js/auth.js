@@ -43,7 +43,7 @@ function codeClick() {
 // If so user has already authenticated, and  page has been reloaded via the Redirect URI
 window.onload = function(e) {
 	if (localStorage.getItem("sparkToken") != null) {
-		window.location="powerpack.html";
+		window.location="powerpack.php";
 	}else{
 		//document.getElementById('redirectUri').value=window.location.href.split("?")[0]; // Detect the current page's base URL
 		var params = parseQueryStr(window.location.search.substring(1)); // Parse the query string params into a dictionary
@@ -69,7 +69,7 @@ function me(){
 				localStorage.setItem("myEmail", me.emails[0]);
 				localStorage.setItem("displayName", me.displayName);
 				localStorage.setItem("myAvatar", me.avatar);
-				window.location="powerpack.html";
+				window.location="powerpack.php";
 			}else{
 				console.log('Error: ' + xhttp.statusText);
 			}

@@ -1,45 +1,10 @@
- <!DOCTYPE html>
-<html>
-<head>
-	<link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/bootstrap.min.css">
-	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css">
-	<title>List Manager</title>
-</head>
-<body>
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">Spark Power Pack</a>
-    </div>
-
-      
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" id="refreshToken">Log Out</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
+ <?php
+  include 'includes/header.php';
+?>
+  <?= $header; ?>
 	<div class="container">
 		<div class="jumbotron" id="intro">
-			<h2>Welcome to the list manager!</h2>
+			<h2>List Manager:</h2>
 			<p>This tool will allow you to invite contacts to your rooms in bulk. Would you like to add contacts to an existing room or create a new room?<p>
 			<button class="btn btn-warning" id="existing" type="button">Existing Room</button>
 			<button class="btn btn-success" id="new" type="button">Create Room</button>
@@ -53,13 +18,13 @@
 	            <a href="#" class="btn btn-primary" id="bread3">Create</a>
 	        </div>
 		</div>
+		</br>
 		<div class="row" id="step1a" hidden>
 			<div class="col-md-4">
-				<h2>Select a Room</h2>
 				<div class="form-group" id="roomForm" hidden>
-				  <div class="col-md-12">
+				  <div>
 				    <select name="rooms" id="rooms" class="form-control">
-				    	<option disabled>Select a room</option>
+				    	<option value="">Select a room:</option>
 				    </select>
 				  </div>
 				</div>
@@ -99,5 +64,6 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.csv.js"></script>
+	<script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript" src="js/listmgr.js"></script>
 </html>

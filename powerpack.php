@@ -12,7 +12,5 @@
 </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="js/jquery.csv.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
-  <script type="text/javascript" src="js/listmgr.js"></script>
 </html>

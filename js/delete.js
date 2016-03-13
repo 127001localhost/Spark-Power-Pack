@@ -1,21 +1,5 @@
 var myRooms = [];
 var selected = [];
-var sparkToken = localStorage.getItem("sparkToken");
-
-console.log(sparkToken);
-
-//////////////////////////////////////
-// Site Layout Control
-/////////////////////////////////////
-
-function leaveSelected(){
-	console.log(selected.length);
-	for(i in selected){
-		console.log("this would leave: "+myRooms[selected[i]].title);
-		getMembershipId(myRooms[selected[i]].id, localStorage.getItem("myId"));
-
-	}
-}
 
 function getMembershipId(roomId, personId){
 	$.ajax({
@@ -44,44 +28,17 @@ function leaveRoom(membershipId){
 	});
 	$("#confirm").empty();
 	$("#complete").show();
-	$("#complete").html("<h3>Success!</h3>");
-
+	var HTML = "<h3>Successfully left the following rooms:</h3>";
+	for(index in selected){
+		HTML += "<p>"+myRooms[selected[index]].title+"</p>";
+	};
+	$("#complete").html(HTML);
 }
 
-
-function roomsClick(){
-	$("#listRooms").toggleClass('active');
-	var HTML = "<table class=\"table table-striped\" id=\"roomList\"><thead><th></th><th>Room Name</th><th>Created</th><th>Last Activity</th></thead>";
-	xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function(){
-		if(xhttp.readyState == 4){
-			if (xhttp.status == 200) {
-				var rooms = JSON.parse(xhttp.responseText);
-				for(var i = 0; i < rooms['items'].length; i++){
-					//console.log(rooms['items'][i].title);
-					myRooms.push(rooms['items'][i]);
-					var roomName = rooms['items'][i].title;
-					var roomId = rooms['items'][i].id;
-					HTML += "<tr><td><input type=\"checkbox\" name=\"checkboxes\" id=\"roomIndex\""+i+" value=\""+i+"\"><td>"+roomName+"</td><td>"+rooms['items'][i].created+"</td><td>"+rooms['items'][i].lastActivity+"</td><td></tr>";
-				}
-				HTML += "</table>";
-				$("#myRooms").show();
-				$("#myRooms").prepend(HTML);
-				$("#intro").hide();
-			}else{
-				console.log('Error: ' + xhttp.statusText);
-			}
-		}
+function leaveSelected(){
+	for(i in selected){
+		getMembershipId(myRooms[selected[i]].id, localStorage.getItem("myId"));
 	}
-	xhttp.open('GET', 'https://api.ciscospark.com/v1/rooms?max=50', true);
-	xhttp.setRequestHeader('Content-Type', 'application/json');
-	xhttp.setRequestHeader('Authorization', sparkToken);
-	xhttp.send();
-}
-
-function refreshToken(){
-	localStorage.removeItem("sparkToken");
-	window.location="spark_auth.html";
 }
 
 function reviewSelected(){
@@ -94,8 +51,42 @@ function reviewSelected(){
 	for(index in selected){
 		HTML += "<p>"+myRooms[selected[index]].title+"</p>";
 	};
-	console.log(selected);
+	//console.log(selected);
 	$("#confirm").prepend(HTML);
+}
+
+function roomsClick(){
+	$("#listRooms").toggleClass('active');
+	var HTML = "<table class=\"table table-striped\" id=\"roomList\"><thead><th></th><th>Room Name</th><th>Created</th><th>Last Activity</th></thead>";
+
+	$.ajax({
+		url: "https://api.ciscospark.com/v1/rooms?max=50",
+		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+		cache: false,
+		method: "GET",
+		statusCode: {
+			502: function(){
+				$("#roomButton").hide();
+				$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
+
+			}
+		}
+	}).done(function(rooms){
+		for(var i = 0; i < rooms['items'].length; i++){
+			//console.log(rooms['items'][i].title);
+			myRooms.push(rooms['items'][i]);
+			var roomName = rooms['items'][i].title;
+			var roomId = rooms['items'][i].id;
+			var created = new Date(rooms['items'][i].created);
+			var activity = new Date(rooms['items'][i].lastActivity);
+			HTML += "<tr><td><input type=\"checkbox\" name=\"checkboxes\" id=\"roomIndex\""+i+" value=\""+i+"\"><td>"+roomName+"</td><td>"+created.toLocaleString()+"</td><td>"+activity.toLocaleString()+"</td><td></tr>";
+		}
+		HTML += "</table>";
+		$("#myRooms").show();
+		$("#myRooms").prepend(HTML);
+		$("#intro").hide();
+	});
+
 }
 
 function startOver(){

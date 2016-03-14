@@ -36,7 +36,7 @@ $('select[name="rooms"]').change(function() {
     var i = $("#rooms").val();
     console.log(myRooms[i]);
     selectedRoom = myRooms[i];
-	$("#dvImportSegments").prepend("<h3>Select a list of contacts to add to the "+myRooms[i].title+" room.</h3>");
+	$("#dvImportSegments").prepend("<h3>Upload a list of contacts to add to the "+myRooms[i].title+" room.</h3>");
   });
 
 function bread(step){
@@ -73,10 +73,12 @@ function bread(step){
 
 //////////////////////////////////////
 
-function add(){
+function add(finalEmailNames){
 	// loop through contacts and add them to room
 	//var roomOwner = localStorage.getItem("myEmail");
 	//console.log("RoomOwner: ", roomOwner);
+	//console.log("emailNames before add(): ", emailNames);
+	console.log("finalEmailNames: ", finalEmailNames);
 	for (var i = 0; i < emailNames.length; i++){
 		personEmail = emailNames[i];
 		addContact(selectedRoom.id, emailNames[i]);
@@ -230,31 +232,134 @@ function upload(evt) {
               emailNames = findUnique(emailNames);  //remove any duplicate emails
               emailNames = emailNames.slice(0,-1);	//remove the empty field at the end of the array
               console.log("unique emails only from uniqueEmailName : ", emailNames);
+              //
+               var RoomMembershipData;
+               getExistingMembership(selectedRoom.id,function(returnedData){
+               	RoomMembershipData = returnedData;
+              	console.log("What am I getting for RoomMembershipData: ",RoomMembershipData);
+              	newEmails(emailNames,RoomMembershipData);
+              	}); 
+			  
             } else {
                 alert('No data to import!');
             }
-        	displayUserCount();
+        	displayUserCount(finalEmailNames);
         };
         reader.onerror = function() {
             alert('Unable to read ' + file.fileName);
         };
 	}
 }
-function displayUserCount() {
-	numUsers = emailNames.length;
-	var HTML = "<h3>Read " + numUsers + " unique users from file</h3>";
-	if (numUsers > 1){
+
+function parseContacts(){
+	var roomOwner = localStorage.getItem("myEmail");
+	console.log("Parsing contacts from user input");
+	var userContacts = $("#myContacts").val();
+	console.log("user contacts: ", userContacts);
+	
+	var userContactsListCR = userContacts.split("\n");
+	var userContactsListSP = userContacts.split(" ");
+	if (userContactsListSP.length<2 || userContactsListCR.length>2) {
+		console.log("userContactsListCR: ", userContactsListCR);
+		emailNames = findUnique(userContactsListCR);  //remove any duplicate emails
+		console.log("unique emailNames: ", emailNames);
+	};
+	if (userContactsListSP.length>1 || userContactsListCR.length<2) {
+		console.log("userContactsListSP: ", userContactsListSP);
+		emailNames = findUnique(userContactsListSP);  //remove any duplicate emails
+		console.log("unique emailNames: ", emailNames);
+	};
+	var indexRoomOwner = emailNames.indexOf(roomOwner);
+	if (indexRoomOwner > -1) {
+		emailNames.splice(indexRoomOwner, 1);
+	}
+	console.log("Room Owner Removed: ", emailNames);
+	var RoomMembershipData;
+   	var finalEmailNames;
+   	//Get existing Room members and eliminate them from the new email list if they are already in an existing member
+   	getExistingMembership(selectedRoom.id,function(returnedData){
+   	RoomMembershipData = returnedData;
+  	console.log("What am I getting for RoomMembershipData: ",RoomMembershipData);
+  	//newEmails(emailNames,RoomMembershipData);
+  	finalEmailNames = newEmails(emailNames,RoomMembershipData);
+  	console.log("returned finalEmailNames: ", finalEmailNames);
+  	displayUserCount(finalEmailNames);
+  	});
+  	
+  	//displayUserCount(finalEmailNames);
+}
+
+
+function displayUserCount(myemails) {
+	console.log("in displayUserCount() now: ");
+	//numUsers = emailNames.length;
+	numUsers = myemails.length;
+	//console.log("in displayUserCount: emailsNames are: ", emailNames);
+	console.log("in displayUserCount: finalEmailNames are: ", myemails);
+	var HTML = "<h3>" + numUsers + " unique users to add to the room</h3>";
+	if (numUsers > 0){
 		HTML += "<table class=\"table table-condensed\"><th>Email Address</th>";
-		for(i in emailNames){
-			HTML += "<tr><td>"+emailNames[i]+"</td></tr>";
+		for(i in myemails){
+			HTML += "<tr><td>"+myemails[i]+"</td></tr>";
 		};
 		HTML += "</table>";
-		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\"add()\">Add Contacts</button>";
+		//HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\"add()\">Add Contacts</button>";
+		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\'add(\"" + myemails + "\")'>Add Contacts</button>";
 	};
 	$("#dvImportSegments").hide();
 	$( "#displayContacts" ).html(HTML);
 
 }
+
+
+function getExistingMembership(roomId,callback){
+
+	$.ajax({
+		url: "https://api.ciscospark.com/v1/memberships?roomId="+roomId,
+		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+		cache: false,
+		method: "GET"
+	}).done(function(data){
+		console.log("membership: ",data);
+		console.log("Membership Email[0]", data.items[0].personEmail);
+		console.log("data.items: ", data.items);
+		callback(data);
+	});
+}
+
+function newEmails(emailNames,existingMembers) {
+	var existingEmails = [];
+	console.log("new unique emails: ", emailNames);
+	console.log("existingMembers: ",existingMembers);
+	for(var i = 0; i < Object.keys(existingMembers.items).length; i++){
+		console.log("Existing Members: ",existingMembers.items[i].personEmail);
+		if (existingMembers.items[i].personEmail != ""){
+		existingEmails.push(existingMembers.items[i].personEmail);
+		}
+	}
+	console.log("existingEmails: ", existingEmails);
+	//var counter = emailNames.length;
+	var tmpEmailNames = [];
+	for(var i = 0; i <=emailNames.length; i++){
+		var myemails = "";
+		
+		myemails = emailNames[i];
+		console.log("myemails: ", myemails);
+		if ($.inArray(myemails,existingEmails) != -1) {
+			console.log (emailNames[i] + "is already a member");
+			//emailNames.splice(i,1);
+			//console.log("emailNames is now: ", emailNames);
+		} else{
+		tmpEmailNames.push(myemails);
+		}
+	}
+	tmpEmailNames.pop(); // the last email is undefined, so we need to remove it
+	//emailNames = tmpEmailNames; //reassign emailNames to the tmpEmailNames now that we only have the new emails
+	console.log("tmpEmailNames: ",tmpEmailNames);
+	console.log("final tmpEmailNames to add to the room: ", tmpEmailNames);
+	return tmpEmailNames;
+}
+
 
 function findUnique(arr) {
     var result = [];

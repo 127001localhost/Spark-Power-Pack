@@ -56,6 +56,8 @@
 		        	<h4>Or input your contacts below</h4>
 		        	<textarea cols="100" rows="5" id="myContacts" name="contacts" placeholder="Enter your contacts in here" ></textarea>
 		        	<h4></h4>
+		        	<!-- <input type=\"checkbox\" name=\"checkboxes\" id=\"roomIndex\" -->
+		        	<!-- <input type="checkbox" id="ciscoMailer" name="checkboxe" value="YES"> Import Cisco Mailer Contacts<br> -->
 		        	<button class="btn btn-success has-spinner" id="addContacts" type="button" onClick="parseContacts()">Submit Contacts <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
 				</div>
 			</div>

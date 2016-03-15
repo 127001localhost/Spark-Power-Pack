@@ -75,23 +75,15 @@ function bread(step){
 
 function add(finalEmailNames){
 	// loop through contacts and add them to room
-	//var roomOwner = localStorage.getItem("myEmail");
-	//console.log("RoomOwner: ", roomOwner);
-	//console.log("emailNames before add(): ", emailNames);
 	console.log("finalEmailNames: ", finalEmailNames);
-	for (var i = 0; i < emailNames.length; i++){
-		personEmail = emailNames[i];
-		addContact(selectedRoom.id, emailNames[i]);
-		console.log(emailNames[i] + " Added to room");
-		/*
-		if (personEmail == roomOwner){
-			console.log("RoomOwner: " + personEmail + " Not added to the room");
-		}else{
-			addContact(selectedRoom.id, emailNames[i]);
-			console.log(emailNames[i] + " Added to room");
-
-		};*/
-		
+	//need to convert it back to a list, since html changed it from a list back to a string
+	finalEmailNames = finalEmailNames.split(",")
+	console.log("finalEmailNames back to list: ", finalEmailNames)
+	for(i in finalEmailNames){
+		personEmail = finalEmailNames[i];
+		console.log("personEmail in add(): ", personEmail);
+		addContact(selectedRoom.id, personEmail);
+		console.log(personEmail + " Added to room");
 	}
 	$("#step2").hide();
 	$("#step3").show();
@@ -216,34 +208,13 @@ function upload(evt) {
             var csvData = event.target.result;
             if (csvData && csvData.length > 0) {
               console.log("csvData: " + csvData);
-              csvDataList = csvData.split("\n");
-			  for (var i = 0; i < csvDataList.length; i++){
-			  	email = csvDataList[i].replace(/\s+/g, '');
-			  	if (roomOwner != email){  //if email does not belong to the roomOwner
-			  	emailUser.push(email);
-			  	console.log("emailUser: " + emailUser);
-			  	};
-			  }
-			  emailUser.push("") //push an empty email record at the end
-			  emailNames = emailUser;
-			  console.log("emailNames after removing empty space: ", emailNames);
-			  console.log("completed emailUser: ", emailUser);
-              console.log("all emails: " + "'" + emailNames + "'");
-              emailNames = findUnique(emailNames);  //remove any duplicate emails
-              emailNames = emailNames.slice(0,-1);	//remove the empty field at the end of the array
-              console.log("unique emails only from uniqueEmailName : ", emailNames);
-              //
-               var RoomMembershipData;
-               getExistingMembership(selectedRoom.id,function(returnedData){
-               	RoomMembershipData = returnedData;
-              	console.log("What am I getting for RoomMembershipData: ",RoomMembershipData);
-              	newEmails(emailNames,RoomMembershipData);
-              	}); 
-			  
+              //parse the contacts
+              parseContacts(csvData);
+
             } else {
                 alert('No data to import!');
             }
-        	displayUserCount(finalEmailNames);
+
         };
         reader.onerror = function() {
             alert('Unable to read ' + file.fileName);
@@ -251,14 +222,27 @@ function upload(evt) {
 	}
 }
 
-function parseContacts(){
+//Parse the contacts from the user
+function parseContacts(csvData){
+	
 	var roomOwner = localStorage.getItem("myEmail");
 	console.log("Parsing contacts from user input");
+	
+	//get contacts from input textbox
 	var userContacts = $("#myContacts").val();
 	console.log("user contacts: ", userContacts);
 	
+	//get contacts from user file
+	if (csvData && csvData.length>0){
+		userContacts = csvData;
+		}
+
+	//create a list of contacts	
 	var userContactsListCR = userContacts.split("\n");
 	var userContactsListSP = userContacts.split(" ");
+	var userContactsListComma = userContacts.split(",");
+
+	//determine how the user contacts are inputted. 1 user per line? space between each user? comma between each user?
 	if (userContactsListSP.length<2 || userContactsListCR.length>2) {
 		console.log("userContactsListCR: ", userContactsListCR);
 		emailNames = findUnique(userContactsListCR);  //remove any duplicate emails
@@ -269,46 +253,122 @@ function parseContacts(){
 		emailNames = findUnique(userContactsListSP);  //remove any duplicate emails
 		console.log("unique emailNames: ", emailNames);
 	};
-	var indexRoomOwner = emailNames.indexOf(roomOwner);
+	console.log("userContactsListComma: ", userContactsListComma);
+	if (userContactsListSP.length <2 && userContactsListCR.length<2){
+		emailNames = findUnique(userContactsListComma);
+		}
+
+	//check if emails are valid and get valid email list and invalid email list
+	var results = validEmail(emailNames,roomOwner);
+	console.log("retuned validEmailList: ", results.validUsersList);
+	console.log("returned invalidEmailList: ", results.invalidUsersList);
+	
+	//Remove the owner of the room from the list since they're already in the room 
+	var indexRoomOwner = results.validUsersList.indexOf(roomOwner);
 	if (indexRoomOwner > -1) {
-		emailNames.splice(indexRoomOwner, 1);
+		results.validUsersList.splice(indexRoomOwner, 1);
 	}
-	console.log("Room Owner Removed: ", emailNames);
+
+	console.log("Room Owner Removed: ", results.validUsersList);
 	var RoomMembershipData;
    	var finalEmailNames;
+   	
    	//Get existing Room members and eliminate them from the new email list if they are already in an existing member
    	getExistingMembership(selectedRoom.id,function(returnedData){
    	RoomMembershipData = returnedData;
   	console.log("What am I getting for RoomMembershipData: ",RoomMembershipData);
-  	//newEmails(emailNames,RoomMembershipData);
-  	finalEmailNames = newEmails(emailNames,RoomMembershipData);
+
+  	//compare inputted users to existing users already in the room and return only the new users
+  	finalEmailNames = newEmails(results.validUsersList,RoomMembershipData);
   	console.log("returned finalEmailNames: ", finalEmailNames);
-  	displayUserCount(finalEmailNames);
+  	
+  	//display the valid new users
+  	displayUserCount(finalEmailNames,results.invalidUsersList);
   	});
   	
-  	//displayUserCount(finalEmailNames);
 }
 
+//check to make sure the user input are valid email addresses
+function validEmail(usersList,roomOwner){
+	var validUsersList = [];
+	var invalidUsersList = [];
+	//console.log("in validEmail() RoomOwner: ", roomOwner);
+	userDomain = "@" + roomOwner.substring(roomOwner.indexOf("@") + 1);
+	console.log("userDomain: ", userDomain);
 
-function displayUserCount(myemails) {
+	//used to test for a valid email
+	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	//console.log("number of users: ", usersList);
+	console.log("in validEmail() - usersList", usersList.length);
+	
+	//loop through each user and test for valid email.
+	for (var i = 0; i < usersList.length; i++){
+		var user = usersList[i];
+		console.log("before applying a filter: " + "'" + user + "'");
+		user = user.replace(/[^a-zA-Z0-9@.]/g, '');
+		console.log("user after filtering out special characters and spaces: " + "'" + user + "'");
+		var goodEmail = re.test(user);
+		console.log("loop # ", i);
+		
+			//Make sure the user does not start out with ^group. and user does not already have @cisco.com and user not empty
+			if (user.search('^group.') == -1 && user.search(userDomain) == -1 && user !="" && !goodEmail){
+				//user = user+"@cisco.com";
+				user = user+userDomain;
+				console.log("user is now: ", user);
+				validUsersList.push(user);
+
+			}
+			else{
+				if (goodEmail){
+					console.log("That is a valid email: ", user);
+					validUsersList.push(user);
+					}
+				else{
+					console.log("That is an invalid email:", user);
+					invalidUsersList.push(user);
+					}
+				}
+
+
+	}
+	return {validUsersList: validUsersList,
+			invalidUsersList: invalidUsersList};
+};
+
+
+function displayUserCount(myemails,invalidUsersList) {
 	console.log("in displayUserCount() now: ");
-	//numUsers = emailNames.length;
 	numUsers = myemails.length;
-	//console.log("in displayUserCount: emailsNames are: ", emailNames);
 	console.log("in displayUserCount: finalEmailNames are: ", myemails);
-	var HTML = "<h3>" + numUsers + " unique users to add to the room</h3>";
+	var HTML = "<h3>" + numUsers + " new valid users to add to the room</h3>";
 	if (numUsers > 0){
 		HTML += "<table class=\"table table-condensed\"><th>Email Address</th>";
 		for(i in myemails){
 			HTML += "<tr><td>"+myemails[i]+"</td></tr>";
 		};
 		HTML += "</table>";
-		//HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\"add()\">Add Contacts</button>";
 		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\'add(\"" + myemails + "\")'>Add Contacts</button>";
 	};
+
 	$("#dvImportSegments").hide();
 	$( "#displayContacts" ).html(HTML);
-
+	
+	/*
+	//Display the invalid email addresses entered/read from file.
+	console.log("invalidUsersList.length: ", invalidUsersList.length);
+	if (invalidUsersList.length>0){
+		console.log("invalidUsersList.length: ", invalidUsersList.length);
+		var invalHTML = "<h3>" + invalidUsersList.length + " invalid user email addresses</h3>";	
+		invalHTML += "<table class=\"table table-condensed\"><th>Not valid Email Address</th>";
+		for (i in invalidUsersList){
+			invalHTML += "<tr><td>"+invalidUsersList[i]+"</td></tr>";
+		};
+		invalHTML += "</table>";
+	};
+	
+	$("#dvImportSegments").hide();
+	$( "#displayContacts" ).html(invalHTML);
+	*/
 }
 
 
@@ -327,6 +387,7 @@ function getExistingMembership(roomId,callback){
 	});
 }
 
+//compare new list of users with existing users and return only new users.
 function newEmails(emailNames,existingMembers) {
 	var existingEmails = [];
 	console.log("new unique emails: ", emailNames);
@@ -354,8 +415,7 @@ function newEmails(emailNames,existingMembers) {
 		}
 	}
 	tmpEmailNames.pop(); // the last email is undefined, so we need to remove it
-	//emailNames = tmpEmailNames; //reassign emailNames to the tmpEmailNames now that we only have the new emails
-	console.log("tmpEmailNames: ",tmpEmailNames);
+
 	console.log("final tmpEmailNames to add to the room: ", tmpEmailNames);
 	return tmpEmailNames;
 }

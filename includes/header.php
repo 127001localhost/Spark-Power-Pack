@@ -31,6 +31,7 @@ $header = '
             <li><a href="carboncpy.php">Carbon Copy</a></li>
             <li><a href="delete.php">Exodus</a></li>
             <li><a href="listManager.php">List Manager</a></li>
+            <li><a href="tabManager.php">Tab Manager</a></li>
           </ul>
         </li>
          <li class="dropdown">
@@ -42,7 +43,7 @@ $header = '
         </li>
         <li class="dropdown" id="profile">
           <ul class="dropdown-menu">
-            <li><a href="#" id="refreshToken">Log Out</a></li>
+            <li><a href="#" id="refreshToken" onclick="refreshToken()">Log Out</a></li>
           </ul>
         </li>
       </ul>

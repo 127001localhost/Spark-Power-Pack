@@ -1,4 +1,18 @@
-about us
+
+About Us
+
+Ang Tan (antan)
+WI-IL Territory SE
+Software Developer
+
+Brad McAllister(bmcallis)
+Territory CSE
+Lead Software Developer
+
+Jim Matthews (jimatthe)
+CH-IN Territory SE
+Director of User Experience
+
 The Spark Power Pack application(s) each leverage the powerful API's available to Spark Developers. The initial set of API's focus on the management of Spark Rooms.  With access to Spark Power Pack, you can manage your rooms and the people in them. Other features include important room notification via Spark to Cisco Jabber. 
 
 •	Need to update multiple team rooms at the same time with an important message or an alert? Try Carbon Copy. 
@@ -7,9 +21,9 @@ The Spark Power Pack application(s) each leverage the powerful API's available t
 •	Not a Spark person? Setup alerts with Tab Manager to send a notification to Jabber when an important conversation in Cisco Spark is happening. 
 
 
-Spark Power Pack was inspired and created from the Commercial Central Hack-a-thon Contest sponsored by Michael Hays (mhays) and Kristen Gioberto (kristing). 
+Spark Power Pack was inspired and created from the Commercial Central Hack-a-thon Contest sponsored by Michael Hays (mhays) and Kristen Gioberto (kristing). We all learned something different and our experience has taught us a lot. 
 
-Cisco Spark was used for 100% of the collaboration between our 3 team members. Github was integrated into Cisco Spark via an IFTTT.com API recipe and the spark room was notified when new issues were created in GitHub. We can also tell you the closing price of CSCO for the week we spent in our Spark Room thanks for an IFTTT.com receipt.  
+Cisco Spark was used for 100% of the collaboration between our 3 team members. Github was integrated into Cisco Spark via an IFTTT.com API recipe and our Spark room was notified when new issues were created via GitHub. We can also tell you the closing price of CSCO for the week we spent in our Spark Room thanks to an IFTTT.com receipt that posted to our room when the market closed. Let’s go $30!
 
 With that said, we have created a collection of tools to enable repetitive tasks in bulk. Click Tools in the upper right to get started
 

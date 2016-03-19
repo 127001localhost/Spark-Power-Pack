@@ -23,7 +23,7 @@ The Spark Power Pack application(s) each leverage the powerful API's available t
 
 Spark Power Pack was inspired and created from the Commercial Central Hack-a-thon Contest sponsored by Michael Hays (mhays) and Kristen Gioberto (kristing). We all learned something different and our experience has taught us a lot. 
 
-Cisco Spark was used for 100% of the collaboration between our 3 team members. Github was integrated into Cisco Spark via an IFTTT.com API recipe and our Spark room was notified when new issues were created via GitHub. We can also tell you the closing price of CSCO for the week we spent in our Spark Room thanks to an IFTTT.com receipt that posted to our room when the market closed. Let’s go $30!
+Cisco Spark was used for 100% of the collaboration between our 3 team members. Github was integrated into Cisco Spark via an IFTTT.com API recipe and our Spark room was notified when new issues were opened or closed via GitHub commits. We can also tell you the closing price of CSCO for the week we spent in our Spark Room thanks to an IFTTT.com receipt that posted to our room when the market closed. Let’s go $30!
 
 With that said, we have created a collection of tools to enable repetitive tasks in bulk. Click Tools in the upper right to get started
 

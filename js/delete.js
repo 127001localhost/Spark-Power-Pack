@@ -154,7 +154,7 @@ function pagination(max=10){
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
 	var numPages = (totalRooms / max);
-	var HTML = "<h4 id='pageNav' style='display: inline-block;'>page(s): page(s): ";
+	var HTML = "<h4 id='pageNav' style='display: inline-block;'>page(s): ";
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;

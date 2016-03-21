@@ -52,8 +52,15 @@ function leaveRoom(membershipId, num){
 
 function leaveSelected(){
 	for(var i = 0; i < selected.length; i++){
+		// clean up locate data
+		for(j in pageData){
+			if (selected[i].id == pageData[j].id){
+				pageData.splice(j, 1);
+			}
+		}
 		getMembershipId(selected[i].id, localStorage.getItem("myId"), (i+1));
 	}
+	localStorage.setItem("roomList", JSON.stringify(pageData));
 }
 
 function reviewSelected(){
@@ -118,6 +125,8 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 			}else{
 				//flatten the pageData array 
 				pageData = _.flatten(pageData);
+				localStorage.setItem("roomList", JSON.stringify(pageData));
+				localStorage.setItem("page", page);
 				// call the pagiation script
 				pagination();
 			}

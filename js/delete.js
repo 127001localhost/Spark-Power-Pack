@@ -52,8 +52,15 @@ function leaveRoom(membershipId, num){
 
 function leaveSelected(){
 	for(var i = 0; i < selected.length; i++){
+		// clean up locate data
+		for(j in pageData){
+			if (selected[i].id == pageData[j].id){
+				pageData.splice(j, 1);
+			}
+		}
 		getMembershipId(selected[i].id, localStorage.getItem("myId"), (i+1));
 	}
+	localStorage.setItem("roomList", JSON.stringify(pageData));
 }
 
 function reviewSelected(){
@@ -70,45 +77,61 @@ function reviewSelected(){
 	console.log(selected);
 }
 
+function refreshRooms(){
+	pageData = [];
+	localStorage.removeItem("roomList");
+	$(".container").html('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
+	listRooms();
+}
+
 function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
-	// check to see if list rooms came back with a "next link"
-	if(next.length > 1){
-		url = next;
+	// check for cached data
+	if (localStorage.getItem("roomList")){
+		pageData = JSON.parse(localStorage.getItem("roomList"));
+		page = localStorage.getItem("page");
+		pagination();
 	}else{
-		url = url+"?max=100";
-	}
-
-	$.ajax({
-		url: url,
-		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-		cache: false,
-		method: "GET",
-		statusCode: {
-			502: function(){
-				$("#roomButton").hide();
-				$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
-
-			}
-		}
-	}).done(function(data, status, xhr){
-		//pagination
-		pageData.push(data.items);
-
-		//parse the next link from the respone header
-		var link = xhr.getResponseHeader('Link');
-		if(link){
-			var myRegexp = /(http.+)(>)/g;
-			var match = myRegexp.exec(link);
-			page++;
-			// call listRooms again with the next link
-			listRooms(match[1]);
+		// check to see if list rooms came back with a "next link"
+		if(next.length > 1){
+			url = next;
 		}else{
-			//flatten the pageData array 
-			pageData = _.flatten(pageData);
-			// call the pagiation script
-			pagination();
+			url = url+"?max=100";
 		}
-	});
+
+		$.ajax({
+			url: url,
+			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+			cache: false,
+			method: "GET",
+			statusCode: {
+				502: function(){
+					$("#roomButton").hide();
+					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
+
+				}
+			}
+		}).done(function(data, status, xhr){
+			//pagination
+			pageData.push(data.items);
+
+			//parse the next link from the respone header
+			var link = xhr.getResponseHeader('Link');
+			if(link){
+				var myRegexp = /(http.+)(>)/g;
+				var match = myRegexp.exec(link);
+				page++;
+				// call listRooms again with the next link
+				listRooms(match[1]);
+			}else{
+				//flatten the pageData array 
+				pageData = _.flatten(pageData);
+				localStorage.setItem("roomList", JSON.stringify(pageData));
+				localStorage.setItem("page", page);
+				// call the pagiation script
+				pagination();
+			}
+		});
+	}
 }
 
 function perPage(){
@@ -131,7 +154,7 @@ function pagination(max=10){
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
 	var numPages = (totalRooms / max);
-	var HTML = "<h4 id='pageNav'>page(s): ";
+	var HTML = "<h4 id='pageNav' style='display: inline-block;'>page(s): ";
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;
@@ -141,7 +164,7 @@ function pagination(max=10){
 		var pageDisplay = i + 1;
 		HTML += " <a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a> ";
 	}
-	HTML += "</h4></span></div><div>";
+	HTML += "</h4> <a onClick='refreshRooms()' alt='click to refresh rooms'><i class='glyphicon glyphicon-refresh'></i></a></span></div><div>";
 	$("#pageNav").html(HTML);
 
 	roomDisplay(0,max-1);

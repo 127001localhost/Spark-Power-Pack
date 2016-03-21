@@ -7,8 +7,14 @@
 			<h2>Exodus:</h2>
 			<p>Remove yourself from multiple rooms at one time!<p>
 			<button class="btn btn-warning has-spinner" id="listRooms" type="button">List Rooms <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
+
+			<p>Remove mutiple users from a room at one time!<p>
+			<button class="btn btn-warning has-spinner" id="listRoomsOthers" value="removeOthers" type="button" onClick="roomsClickOthers()">List Rooms <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
 		</div>
 	</div>
+
+
+
 </body>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>

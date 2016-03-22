@@ -45,7 +45,7 @@ function leaveRoom(membershipId, num){
 		for(var i = 0; i < selected.length; i++){
 			HTML += "<p>"+selected[i].value+"</p>";
 		}
-		HTML += '<button class="btn btn-normal" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
+		HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
 		$(".container").html(HTML);
 	}
 }	
@@ -113,7 +113,7 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 		}).done(function(data, status, xhr){
 			//pagination
 			pageData.push(data.items);
-
+			console.log("my pageData info: ", pageData);
 			//parse the next link from the respone header
 			var link = xhr.getResponseHeader('Link');
 			if(link){
@@ -125,6 +125,10 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 			}else{
 				//flatten the pageData array 
 				pageData = _.flatten(pageData);
+				console.log("pageData after flattening, unsorted" , pageData);
+				//pageData.sort((a,b) =>a.title.localeCompare(b.title));
+				pageData = sortObjectBy(pageData,"lastActivity","D");
+				console.log("pageData after flattening, sorted" , pageData);
 				localStorage.setItem("roomList", JSON.stringify(pageData));
 				localStorage.setItem("page", page);
 				// call the pagiation script
@@ -132,6 +136,43 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 			}
 		});
 	}
+}
+
+function sortObjectBy(myData, srtValue, srtOrder){
+	//Sort ascending order
+	console.log("srtValue: ", srtValue);
+	console.log("srtOrder: ", srtOrder);
+	console.log("myData passed: ", myData);
+	if (srtOrder == "A"){
+		if (srtValue == "title"){		
+			myData.sort((a,b) =>a.title.localeCompare(b.title));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "title")
+		if (srtValue == "created"){		
+			myData.sort((a,b) =>a.created.localeCompare(b.created));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "created")
+		if (srtValue == "lastActivity"){		
+			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "lastActivity")
+	} //(srtOrder == "A")
+	if (srtOrder == "D"){
+		if (srtValue == "title"){		
+			myData.sort((a,b) =>b.title.localeCompare(a.title));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "title")
+		if (srtValue == "created"){		
+			myData.sort((a,b) =>b.created.localeCompare(b.created));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "created")
+		if (srtValue == "lastActivity"){		
+			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "lastActivity")
+	} //(srtOrder == "D")
+	
+	return myData;
 }
 
 function perPage(){
@@ -259,13 +300,13 @@ function getUsers(roomId,roomTitle){
 			email = data['items'][i].personEmail;
 			user = {name: name, email: email, id: id};
 
-			//Only push the contact into usersList if the user's name is not Cisco Security or the moderator that is removing users
-			//Can't remove Cisco Security user anyways from a room.
-			if (name !="Cisco Security"){
+			//Only push the contact into usersList if the user has an email address.  This will filter out any "Security" user that monitors the
+			//room such as IT org or Cisco Security.  We also do not want to remove the moderator of the room that is removing users.
+			if (email !=""){
 				if (email != yourself){
 					usersList.push(user);
 				}//if (email != yourself)
-			}//if (name !="Cisco Security")
+			}//(email !="")
 
 		} //for (var i = 0; i< data.length; i++)
 		console.log("UsersList from the room before sorting is: ", usersList);
@@ -340,13 +381,40 @@ function removeUsers(roomTitle){
 	} //for (index in selected)
 
 	$("#complete").show();
-	var HTML = "<h3>Successfully removed the following users from "+roomTitle+" Room</h3>";
+	var HTML = "<div class=\"jumbotron\"><h3>Successfully removed the following users from "+roomTitle+" Room</h3><h5></h5>";
 	for(index in selected){
 		HTML += "<p>"+selected[index].name+"</p>";
 	};
+	HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
 	//$("#complete").html(HTML);
 	$(".container").html(HTML);
 }
+
+/*
+function leaveRoom(membershipId, num){
+	$.ajax({
+		url: "https://api.ciscospark.com/v1/memberships/"+membershipId,
+		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+		cache: false,
+		method: "DELETE",
+		statusCode: {
+			204: function(){
+			}
+		}
+	});
+	if(num == selected.length){
+		var HTML = '<div class="jumbotron"><h2>You left the following rooms:</h2>';
+		for(var i = 0; i < selected.length; i++){
+			HTML += "<p>"+selected[i].value+"</p>";
+		}
+		HTML += '<button class="btn btn-normal" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
+		$(".container").html(HTML);
+	}
+}	
+*/
+
+
+
 
 
 function listRoomsOthers(idTagVal){

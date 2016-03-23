@@ -179,6 +179,7 @@ function sortObjectBy(myData, srtValue, srtOrder){
 
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
+	checkSelected();
 	pagination();
 }
 

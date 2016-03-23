@@ -7,9 +7,10 @@ $header = '
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-  <title>List Manager</title>
+  <title>Spark Power Pack</title>
 </head>
 <body>
+
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -28,17 +29,17 @@ $header = '
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="carboncpy.php">Carbon Copy</a></li>
-            <li><a href="delete.php">Exodus</a></li>
-            <li><a href="listManager.php">List Manager</a></li>
-            <li><a href="tabManager.php">Tab Manager</a></li>
+            <li><a href="broadcast.php">Broadcast</a></li>
+            <li><a href="exodus.php">Exodus</a></li>
+            <li><a href="invites.php">Invites</a></li>
+            <li><a href="jabberAlerts.php">Jabber Alerts</a></li>
           </ul>
         </li>
          <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Resources <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="https://collab-tme.cisco.com/spark/publicrooms/" target="_blank">Public Rooms</a></li>
-            <li><a href="#">About Us</a></li>
+            <li><a href="aboutus.php">About Us</a></li>
           </ul>
         </li>
         <li class="dropdown" id="profile">

@@ -4,13 +4,13 @@
   <?= $header; ?>
 	<div class="container">
 		<div class="jumbotron" id="intro">
-			<h2>List Manager:</h2>
+			<h2>Invites:</h2>
 			<p>This tool will allow you to invite contacts to your rooms in bulk. Would you like to add contacts to an existing room or create a new room?<p>
 			<button class="btn btn-warning" id="existing" type="button">Existing Room</button>
 			<button class="btn btn-success" id="new" type="button">Create Room</button>
 		</div>
 	    <div class="row" id="bread" hidden>
-    		<h2>List Manager</h2>
+    		<h2>Invites</h2>
 	        <div class="btn-group btn-breadcrumb">
 	            <a href="#" class="btn btn-primary" id="startOver"><i class="glyphicon glyphicon-home"></i></a>
 	            <a href="#" class="btn btn-primary" id="bread1">Select Room</a>
@@ -56,8 +56,6 @@
 		        	<h4>Or input your contacts below</h4>
 		        	<textarea cols="100" rows="5" id="myContacts" name="contacts" placeholder="Enter your contacts in here" ></textarea>
 		        	<h4></h4>
-		        	<!-- <input type=\"checkbox\" name=\"checkboxes\" id=\"roomIndex\" -->
-		        	<!-- <input type="checkbox" id="ciscoMailer" name="checkboxe" value="YES"> Import Cisco Mailer Contacts<br> -->
 		        	<button class="btn btn-success has-spinner" id="addContacts" type="button" onClick="parseContacts()">Submit Contacts <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
 				</div>
 			</div>
@@ -73,5 +71,6 @@
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.csv.js"></script>
 	<script type="text/javascript" src="js/common.js"></script>
-	<script type="text/javascript" src="js/listmgr.js"></script>
+	<script type="text/javascript" src="js/invites.js"></script>
+	<?php include_once("analyticstracking.php") ?>
 </html>

@@ -5,6 +5,7 @@ var myRoomTitles = [];
 var sortMethod = {"id": "created"};
 var sortDir = 1; // Ascending
 
+
 $("#listRooms").on('click', function(){
 	$("#intro").remove();
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
@@ -128,8 +129,7 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 				//flatten the pageData array 
 				pageData = _.flatten(pageData);
 				console.log("pageData after flattening, unsorted" , pageData);
-				//pageData.sort((a,b) =>a.title.localeCompare(b.title));
-				pageData = sortObjectBy(pageData,"lastActivity","D");
+				pageData = sortObjectBy(pageData,"title","A");
 				console.log("pageData after flattening, sorted" , pageData);
 				localStorage.setItem("roomList", JSON.stringify(pageData));
 				localStorage.setItem("page", page);
@@ -146,6 +146,7 @@ function sortObjectBy(myData, srtValue, srtOrder){
 	console.log("srtOrder: ", srtOrder);
 	console.log("myData passed: ", myData);
 	if (srtOrder == "A"){
+		console.log("srtOrder by ascending values")
 		if (srtValue == "title"){		
 			myData.sort((a,b) =>a.title.localeCompare(b.title));
 			console.log("myData is now: ",myData);
@@ -160,12 +161,13 @@ function sortObjectBy(myData, srtValue, srtOrder){
 			} //(srtValue == "lastActivity")
 	} //(srtOrder == "A")
 	if (srtOrder == "D"){
+		console.log("srtOrder by descending values")
 		if (srtValue == "title"){		
 			myData.sort((a,b) =>b.title.localeCompare(a.title));
 			console.log("myData is now: ",myData);
 			} //(srtValue == "title")
 		if (srtValue == "created"){		
-			myData.sort((a,b) =>b.created.localeCompare(b.created));
+			myData.sort((a,b) =>b.created.localeCompare(a.created));
 			console.log("myData is now: ",myData);
 			} //(srtValue == "created")
 		if (srtValue == "lastActivity"){		
@@ -173,7 +175,7 @@ function sortObjectBy(myData, srtValue, srtOrder){
 			console.log("myData is now: ",myData);
 			} //(srtValue == "lastActivity")
 	} //(srtOrder == "D")
-	
+	console.log("------------------------")
 	return myData;
 }
 
@@ -333,13 +335,12 @@ function getUsers(roomId,roomTitle){
 			email = data['items'][i].personEmail;
 			user = {name: name, email: email, id: id};
 
-			//Only push the contact into usersList if the user has an email address.  This will filter out any "Security" user that monitors the
-			//room such as IT org or Cisco Security.  We also do not want to remove the moderator of the room that is removing users.
-			if (email !=""){
+			//Only push the contact if their email does not contain "bot@" which would indicate this is not a regular user, but a bot such as Cisco Security bot monitoring the room	
+			if (email.indexOf("bot@") ==-1){
 				if (email != yourself){
 					usersList.push(user);
 				}//if (email != yourself)
-			}//(email !="")
+			}//(email.indexOf("bot@") ==-1)
 
 		} //for (var i = 0; i< data.length; i++)
 		console.log("UsersList from the room before sorting is: ", usersList);

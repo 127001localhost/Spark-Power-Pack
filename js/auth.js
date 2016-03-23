@@ -1,6 +1,6 @@
 var sparkToken = "";
 var clientId = "Cfad29d7cc842ef10a7679ca8e42826edd16abd241c46c9b43069087fd5d32e4f";
-var appRedirectUri="http://me.bmcallister.com/spark/";
+var appRedirectUri="http://spark.bdmcomputers.com/";
 var accessCode="";
 
 // If so user has already authenticated, and  page has been reloaded via the Redirect URI

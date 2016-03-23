@@ -16,5 +16,6 @@
 	<script type="text/javascript" src="js/jquery.csv.js"></script>
 	<script type="text/javascript" src="js/lodash.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
-	<script type="text/javascript" src="js/carboncpy.js"></script>
+	<script type="text/javascript" src="js/broadcast.js"></script>
+	<?php include_once("analyticstracking.php") ?>
 </html>

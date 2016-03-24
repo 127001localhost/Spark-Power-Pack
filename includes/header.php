@@ -38,8 +38,8 @@ $header = '
          <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Resources <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="https://collab-tme.cisco.com/spark/publicrooms/" target="_blank">Public Rooms</a></li>
             <li><a href="aboutus.php">About Us</a></li>
+             <li><a href="feedback.php">Feedback</a></li>
           </ul>
         </li>
         <li class="dropdown" id="profile">

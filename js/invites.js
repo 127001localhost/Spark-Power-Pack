@@ -1,8 +1,9 @@
 var emailNames = [];
 var myRooms = [];
 var selectedRoom = {};
+var page = 0;
+var pageData = [];
 var sparkToken = localStorage.getItem("sparkToken");
-console.log(sparkToken);
 
 //////////////////////////////////////
 // Site Layout Control
@@ -14,7 +15,8 @@ var importType = 0;
 $("#existing").click(function() {
 	importType = 1;
 	bread(1);
-	$("#step1a").show();
+	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
+	listRooms();
 });
 
 $("#new").click(function() {
@@ -34,9 +36,8 @@ $("#startOver").click(function(){
 $('select[name="rooms"]').change(function() {
 	bread(2);
     var i = $("#rooms").val();
-    console.log(myRooms[i]);
-    selectedRoom = myRooms[i];
-	$("#dvImportSegments").prepend("<h3>Upload a list of contacts to add to the "+myRooms[i].title+" room.</h3>");
+    selectedRoom = pageData[i];
+	$("#dvImportSegments").prepend("<h3>Upload a list of contacts to add to the "+pageData[i].title+" room.</h3>");
   });
 
 function bread(step){
@@ -137,38 +138,117 @@ function createRoom(){
 	xhttp.send(body);
 }
 
-function roomsClick(){
-	$("#roomButton").toggleClass('active');
-
-	$.ajax({
-		url: "https://api.ciscospark.com/v1/rooms?max=50",
-		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-		cache: false,
-		method: "GET",
-		statusCode: {
-			502: function(){
-				$("#roomButton").hide();
-				$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
-
-			}
-		}
-	}).done(function(data){
-		for(var i = 0; i < data['items'].length; i++){
-			//console.log(data['items'][i].title);
-			myRooms.push(data['items'][i]);
-			var roomName = data['items'][i].title;
-			var roomId = data['items'][i].id;
-
-			$("#rooms").append("<option value="+i+">"+roomName+"</option>");
-		}
-		$("#roomForm").show();
+function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 		$("#roomButton").hide();
-	});
+	
+	// check for cached data
+	if (localStorage.getItem("roomList")){
+		pageData = JSON.parse(localStorage.getItem("roomList"));
+		page = localStorage.getItem("page");
+		roomDisplay();
+	}else{
+		// check to see if list rooms came back with a "next link"
+		if(next.length > 1){
+			url = next;
+		}else{
+			url = url+"?max=100";
+		}
+
+		$.ajax({
+			url: url,
+			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+			cache: false,
+			method: "GET",
+			statusCode: {
+				502: function(){
+					$("#roomButton").hide();
+					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
+
+				}
+			}
+		}).done(function(data, status, xhr){
+			//pagination
+			pageData.push(data.items);
+			console.log("my pageData info: ", pageData);
+			//parse the next link from the respone header
+			var link = xhr.getResponseHeader('Link');
+			if(link){
+				var myRegexp = /(http.+)(>)/g;
+				var match = myRegexp.exec(link);
+				page++;
+				// call listRooms again with the next link
+				listRooms(match[1]);
+			}else{
+				//flatten the pageData array 
+				pageData = _.flatten(pageData);
+				pageData = sortObjectBy(pageData,"title","A");
+				localStorage.setItem("roomList", JSON.stringify(pageData));
+				localStorage.setItem("page", page);
+				// call the pagiation script
+				roomDisplay();
+			}
+		});
+	}
 }
 
-function refreshToken(){
-	localStorage.removeItem("sparkToken");
-	window.location="index.html";
+function sortObjectBy(myData, srtValue, srtOrder){
+	//Sort ascending order
+	console.log("srtValue: ", srtValue);
+	console.log("srtOrder: ", srtOrder);
+	console.log("myData passed: ", myData);
+	if (srtOrder == "A"){
+		if (srtValue == "title"){		
+			myData.sort((a,b) =>a.title.localeCompare(b.title));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "title")
+		if (srtValue == "created"){		
+			myData.sort((a,b) =>a.created.localeCompare(b.created));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "created")
+		if (srtValue == "lastActivity"){		
+			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "lastActivity")
+	} //(srtOrder == "A")
+	if (srtOrder == "D"){
+		if (srtValue == "title"){		
+			myData.sort((a,b) =>b.title.localeCompare(a.title));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "title")
+		if (srtValue == "created"){		
+			myData.sort((a,b) =>b.created.localeCompare(b.created));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "created")
+		if (srtValue == "lastActivity"){		
+			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "lastActivity")
+	} //(srtOrder == "D")
+	
+	return myData;
+}
+
+function roomDisplay(){
+	for(var i = 0; i < pageData.length; i++){
+		//console.log(data['items'][i].title);
+		//myRooms.push(data['items'][i]);
+		var roomName = pageData[i].title;
+		var roomId = pageData[i].id;
+
+		$("#rooms").append("<option value="+i+">"+roomName+"</option>");
+	}
+	$("#progress").remove();
+	$("#step1a").show();
+	$("#roomForm").show();
+}
+
+function refreshRooms(){
+	$("#step1a").hide();
+	$("#roomForm").hide();
+	pageData = [];
+	localStorage.removeItem("roomList");
+	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
+	listRooms();
 }
 
 function startOver(){
@@ -429,5 +509,3 @@ function findUnique(arr) {
     });
     return result;
 }
-
-

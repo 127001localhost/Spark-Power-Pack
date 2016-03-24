@@ -16,20 +16,23 @@
 	            <a href="#" class="btn btn-primary" id="bread1">Select Room</a>
 	            <a href="#" class="btn btn-primary" id="bread2">Select Contacts</a>
 	            <a href="#" class="btn btn-primary" id="bread3">Create</a>
+	            <a class="btn btn-primary" onClick='refreshRooms()'><i class="glyphicon glyphicon-refresh"></i></a>
+
 	        </div>
 		</div>
 		</br>
 		<div class="row" id="step1a" hidden>
 			<div class="col-md-4">
 				<div class="form-group" id="roomForm" hidden>
-				  <div>
+				  <div style="display: inline-block;">
 				    <select name="rooms" id="rooms" class="form-control">
 				    	<option value="">Select a room:</option>
 				    </select>
 				  </div>
+				  
 				</div>
 
-				<button class="btn btn-success has-spinner" id="roomButton" type="button" onClick="roomsClick()">List my rooms <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
+				<button class="btn btn-success" id="roomButton" type="button">List my rooms</button>
 			</div>
 		</div>
 		<div class="row" id="step1b" hidden>
@@ -37,12 +40,12 @@
 				<h2>Create a Room</h2>
 				<div class="form-group">
 				  <div class="col-md-12">
-				  	<input id="newRoom" name="newRoom" type="text" placeholder="Room Name" class="form-control input-md">
+				  	<input id="newRoom" name="newRoom" type="text" placeholder="Room Name" class="form-control input-md"><br/>
 				  </div>
 				</div>
 				<div class="form-group">
 					<div class="col-md-12">
-			  			<button class="btn btn-success has-spinner" id="createRoom" type="button" onClick="createRoom()">Create Room <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
+			  			<button class="btn btn-success" id="createRoom" type="button" onClick="createRoom()">Create Room</button>
 			  		</div>
 				</div>
 			</div>
@@ -70,6 +73,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.csv.js"></script>
+	<script type="text/javascript" src="js/lodash.js"></script>
 	<script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript" src="js/invites.js"></script>
 	<?php include_once("analyticstracking.php") ?>

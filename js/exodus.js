@@ -352,9 +352,8 @@ function getUsers(roomId,roomTitle){
 function displayUsers(usersList,roomTitle){
 
 	var HTML = "<div class=\"row\"><div class=\"col-md-6\"><h3>Select Users to Remove from "+roomTitle+" Room</h3>";
-	HTML += "<table class=\"table table-striped\" id=\"roomList\"><thead><th></th><th>Name</th><th>Email</th></thead>";
+	HTML += '<table class="table table-striped" id="roomList"><thead><th><label><input type="checkbox" id="checkAll"/></lable></th><th>Name</th><th>Email</th></thead>';
 	var removeUsers = {};
-	HTML += '<p><label><input type="checkbox" id="checkAll"/> Select all</label></p>';
 	for (var i = 0; i < usersList.length ; i++){
 		removeUsers = {name: usersList[i].name, id: usersList[i].id};
 		//HTML += "<tr><td><input type=\"checkbox\" name=\"checkboxes\" id=\"users\""+i+" value=\""+usersList[i].id+"\"><td>"+usersList[i].name+"</td><td>"+usersList[i].email+"</td></tr>";

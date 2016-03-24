@@ -2,6 +2,8 @@ var myId = localStorage.getItem("myId");
 var page = 0;
 var pageData = [];
 var selected = []; // array for tracking item selections when moving between pages 
+var sortMethod = {"id": "title"};
+var sortDir = 1; // Ascending
 
 $("#create").on("click", function(){
 	$("#intro").remove();
@@ -114,6 +116,7 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 			}else{
 				//flatten the pageData array and store in localStorage
 				pageData = _.flatten(pageData);
+				pageData = sortObjectBy(pageData,"title","A");
 				localStorage.setItem("roomList", JSON.stringify(pageData));
 				localStorage.setItem("page", page);
 				// call the pagiation script
@@ -121,6 +124,49 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 			}
 		});
 	}
+}
+
+function sortObjectBy(myData, srtValue, srtOrder){
+	//Sort ascending order
+	console.log("srtValue: ", srtValue);
+	console.log("srtOrder: ", srtOrder);
+	console.log("myData passed: ", myData);
+	if (srtOrder == "A"){
+		if (srtValue == "title"){		
+			myData.sort((a,b) =>a.title.localeCompare(b.title));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "title")
+		if (srtValue == "created"){		
+			myData.sort((a,b) =>a.created.localeCompare(b.created));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "created")
+		if (srtValue == "lastActivity"){		
+			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "lastActivity")
+	} //(srtOrder == "A")
+	if (srtOrder == "D"){
+		if (srtValue == "title"){		
+			myData.sort((a,b) =>b.title.localeCompare(a.title));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "title")
+		if (srtValue == "created"){		
+			myData.sort((a,b) =>b.created.localeCompare(b.created));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "created")
+		if (srtValue == "lastActivity"){		
+			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
+			console.log("myData is now: ",myData);
+			} //(srtValue == "lastActivity")
+	} //(srtOrder == "D")
+	
+	return myData;
+}
+
+function sortBy(srtValue, srtOrder){
+	pageData = sortObjectBy(pageData,srtValue,srtOrder);
+	checkSelected();
+	pagination();
 }
 
 function perPage(){
@@ -132,18 +178,20 @@ function perPage(){
 	pagination(max);
 }
 
+
 function pagination(max=10){
 	$("#progress").remove();
 	//setup page navigation
 	var HTML = "<div class='row'><div class='col-md-6'><h2>Select rooms to receive alerts on</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = "<div class='row'><div class='col-md-6'><span>Rooms per/page: <input type='text' placeholder=10 size='2' maxlength='2' id='max'> <button class='btn btn-normal' id='perPage' type='button' onClick='perPage()'>Update</button><h4 id='pageNav'>page(s): </h4></span></div><div>";
+	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="2" maxlength="2" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
 	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
 	var numPages = (totalRooms / max);
-	var HTML = "<h4 id='pageNav' style='display: inline-block;'>page(s): ";
+
+	var HTML = '<nav><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;
@@ -151,10 +199,17 @@ function pagination(max=10){
 			stop = totalRooms - 1;
 		}
 		var pageDisplay = i + 1;
-		HTML += " <a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a> ";
+		if (pageDisplay == 1){
+			HTML += "<li class='active'><a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a></li>";
+		}else{
+			HTML += "<li><a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a></li>";
+		}
+		
 	}
-	HTML += "</h4> <a onClick='refreshRooms()' alt='click to refresh rooms'><i class='glyphicon glyphicon-refresh'></i></a></span></div><div>";
-	$("#pageNav").html(HTML);
+
+	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul></nav></div><div>';
+	$(".container").append(HTML);
 
 	roomDisplay(0,max-1);
 }
@@ -186,10 +241,27 @@ function checkSelected(){
 	});
 }
 
+// handle the active page
+$(document).on('click', 'li', function() {
+   $("li").removeClass("active");
+   $(this).addClass("active");
+});
+
+$(document).on('click', 'th a', function() {
+	if(sortMethod.id == $(this).attr("id") && sortDir == 0){
+		sortBy($(this).attr("id"), "A");
+		sortDir = 1;
+	}else{
+		sortBy($(this).attr("id"), "D");
+		sortMethod.id = $(this).attr("id");
+		sortDir = 0;
+	}
+});
+
 function roomDisplay(start,stop){
 	checkSelected();
 
-	var table = "<div class='row' id='roomList'><div class='col-md-6'><table class='table table-striped' id='roomTable'><thead><th>Add</th><th>Room Name</th></thead>";
+	var table = '<div class="row" id="roomList"><div class="col-md-6"><table class="table table-striped" id="roomTable"><thead><th>Add</th><th>Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th></thead>';
 
 	var data = pageData;
 	for(var i = start; i <= stop; i++){
@@ -216,7 +288,7 @@ function roomDisplay(start,stop){
 		$("#roomList").remove();
 		$(".container").append(table);
 
-		var button = "</br><button class='btn btn-success' id='createHook' type='button' onclick='createHook()'>Create Jabber Alerts</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"tabManager.php\"'>Cancel</button>";
+		var button = "</br><button class='btn btn-success' id='createHook' type='button' onclick='createHook()'>Create Jabber Alerts</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"jabberAlerts.php\"'>Cancel</button>";
 		$("#roomTable").after(button);
 }
 

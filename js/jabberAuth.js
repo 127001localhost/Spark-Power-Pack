@@ -6,17 +6,19 @@ var accessCode="";
 // If so user has already authenticated, and  page has been reloaded via the Redirect URI
 window.onload = function(e) {
 	if (localStorage.getItem("sparkToken") != null) {
-		window.location="powerpack.php";
+		window.location="jabberTab.php";
 	}else{
 		//document.getElementById('redirectUri').value=window.location.href.split("?")[0]; // Detect the current page's base URL
 		var params = parseQueryStr(window.location.search.substring(1)); // Parse the query string params into a dictionary
 		if (params['code']) { // If the query param 'code' exists, then...
 			accessCode = params['code'];
 			requestToken();
-		}
-		if (params['error']) { // If the query param 'error' exists, then something went wrong...
+		}else if (params['error']) { // If the query param 'error' exists, then something went wrong...
 			alert('Error requesting auth code: ' + params['error'] + ' / ' + params['error_description']);
+		}else if (localStorage.getItem("sparkToken") == null) {
+			requestToken();
 		}
+
 	}
 }
 

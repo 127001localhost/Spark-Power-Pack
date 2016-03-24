@@ -45,13 +45,15 @@
 				</div>
 				<div class="form-group">
 					<div class="col-md-12">
-			  			<button class="btn btn-success" id="createRoom" type="button" onClick="createRoom()">Create Room</button>
+			  			<button class="btn btn-success has-spinner" id="createRoom" type="button" onClick="createRoom()">Create Room <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>
 			  		</div>
 				</div>
 			</div>
 		</div>
 		<div class="row" id="step2" hidden>
-			<h4>If you are unsure on how to format your .csv file, <a href="example.csv">Click HERE</a> to download a sample.</h4>
+			<p>Valid methods of contact entry using file method or in input dialog box.
+If you omit the @aaa.com, it will auto populate the @aaa.com based on your own email domain. See Examples below:</p>
+			<img src="images/contactinput1.png" width="500px"><img src="images/contactinput2.png" width="500px">
 			<div id="dvImportSegments" class="fileupload" >
 				<div class="form-group">
 		        	<input type="file" name="File Upload" id="txtFileUpload" accept=".csv" />

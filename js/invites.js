@@ -87,6 +87,7 @@ function add(finalEmailNames){
 		console.log(personEmail + " Added to room");
 	}
 	$("#step2").hide();
+	$("#myContacts").val("");
 	$("#step3").show();
 	bread(3);
 }

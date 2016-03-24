@@ -278,7 +278,7 @@ function roomDisplay(start,stop){
 		$("#roomList").remove();
 		$(".container").append(table);
 
-		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"delete.php\"'>Cancel</button>";
+		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"exodus.php\"'>Cancel</button>";
 		$("#roomTable").after(button);
 }
 
@@ -334,13 +334,12 @@ function getUsers(roomId,roomTitle){
 			email = data['items'][i].personEmail;
 			user = {name: name, email: email, id: id};
 
-			//Only push the contact into usersList if the user has an email address.  This will filter out any "Security" user that monitors the
-			//room such as IT org or Cisco Security.  We also do not want to remove the moderator of the room that is removing users.
-			if (email !=""){
+			//Only push the contact if their email does not contain "bot@" which would indicate this is not a regular user, but a bot such as Cisco Security bot monitoring the room	
+			if (email.indexOf("bot@") ==-1){
 				if (email != yourself){
 					usersList.push(user);
 				}//if (email != yourself)
-			}//(email !="")
+			}//(email.indexOf("bot@") ==-1)
 
 		} //for (var i = 0; i< data.length; i++)
 		console.log("UsersList from the room before sorting is: ", usersList);
@@ -364,7 +363,7 @@ function displayUsers(usersList,roomTitle){
 	} //for (var i = 0; i < usersList.length ; i++)
 		
 	//HTML += '</table><button class="btn btn-danger" id="leave" type="button" onClick="reviewSelectedUsers()">Remove Users</button>  <button class="btn btn-normal" type="button" onClick=\'window.location="delete.php"\'>Cancel</button></div></div>';
-	HTML += "</table><button class=\"btn btn-danger\" id=\"leave\" type=\"button\" onClick=\'reviewSelectedUsers(\""+roomTitle+"\")'>Remove Users</button>  <button class=\"btn btn-normal\" type=\"button\" onClick=\'window.location=\"delete.php\"\'>Cancel</button></div></div>";
+	HTML += "</table><button class=\"btn btn-danger\" id=\"leave\" type=\"button\" onClick=\'reviewSelectedUsers(\""+roomTitle+"\")'>Remove Users</button>  <button class=\"btn btn-normal\" type=\"button\" onClick=\'window.location=\"exodus.php\"\'>Cancel</button></div></div>";
 
 	$(".container").html(HTML);
 

@@ -67,6 +67,7 @@
 		</div>
 		<div class="row" id="step3" hidden>
 			<h1>Your users have been added!</h1>
+			<button class="btn btn-success" type="button" onclick='window.location="powerpack.php"'>Home</button>
 		</div>
 	</div>
 </body>

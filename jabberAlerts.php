@@ -5,7 +5,7 @@
 	<div class="container">
 		<div class="jumbotron" id="intro">
 			<h2>Jabber Alerts:</h2>
-			<p>Wouldn't it be nice to receive alerts in Jabber for important messages? Jabber Alerts pushe notifications to tabs within Jabber!<p>
+			<p>Wouldn't it be nice to receive alerts in Jabber for important messages? Jabber Alerts pushes notifications to a custom tab within Jabber!<p>
 			<button class="btn btn-warning" id="manage" type="button">Manage Alerts</button>
 			<button class="btn btn-success" id="create" type="button">Create Alerts</button>
 		</div>

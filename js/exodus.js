@@ -278,7 +278,7 @@ function roomDisplay(start,stop){
 		$("#roomList").remove();
 		$(".container").append(table);
 
-		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"delete.php\"'>Cancel</button>";
+		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"exodus.php\"'>Cancel</button>";
 		$("#roomTable").after(button);
 }
 
@@ -363,8 +363,7 @@ function displayUsers(usersList,roomTitle){
 
 	} //for (var i = 0; i < usersList.length ; i++)
 		
-	//HTML += '</table><button class="btn btn-danger" id="leave" type="button" onClick="reviewSelectedUsers()">Remove Users</button>  <button class="btn btn-normal" type="button" onClick=\'window.location="delete.php"\'>Cancel</button></div></div>';
-	HTML += "</table><button class=\"btn btn-danger\" id=\"leave\" type=\"button\" onClick=\'reviewSelectedUsers(\""+roomTitle+"\")'>Remove Users</button>  <button class=\"btn btn-normal\" type=\"button\" onClick=\'window.location=\"delete.php\"\'>Cancel</button></div></div>";
+	HTML += "</table><button class=\"btn btn-danger\" id=\"leave\" type=\"button\" onClick=\'reviewSelectedUsers(\""+roomTitle+"\")'>Remove Users</button>  <button class=\"btn btn-normal\" type=\"button\" onClick=\'window.location=\"exodus.php\"\'>Cancel</button></div></div>";
 
 	$(".container").html(HTML);
 

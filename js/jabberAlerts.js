@@ -8,7 +8,7 @@ var sortDir = 1; // Ascending
 $("#create").on("click", function(){
 	$("#intro").remove();
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms(); // list my rooms
+	listRooms(next, url); // list my rooms
 });
 
 $("#manage").on("click", function(){
@@ -72,10 +72,13 @@ function refreshRooms(){
 	pageData = [];
 	localStorage.removeItem("roomList");
 	$(".container").html('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms();
+	listRooms(next, url);
 }
 
-function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
+var next = "";
+var url = "https://api.ciscospark.com/v1/rooms";
+
+function listRooms(next,url){
 	// check for cached data
 	if (localStorage.getItem("roomList")){
 		pageData = JSON.parse(localStorage.getItem("roomList"));
@@ -112,7 +115,7 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 				var match = myRegexp.exec(link);
 				page++;
 				// call listRooms again with the next link
-				listRooms(match[1]);
+				listRooms(match[1], url);
 			}else{
 				//flatten the pageData array and store in localStorage
 				pageData = _.flatten(pageData);

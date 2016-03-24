@@ -151,6 +151,7 @@ function sortObjectBy(myData, srtValue, srtOrder){
 
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
+	checkSelected();
 	pagination();
 }
 
@@ -261,48 +262,10 @@ function roomDisplay(start,stop){
 		$("#roomList").remove();
 		$(".container").append(table);
 
-		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"delete.php\"'>Cancel</button>";
+		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"broadcast.php\"'>Cancel</button>";
 		$("#roomTable").after(button);
 }
 
-/* Original
-function roomDisplay(start,stop){
-	checkSelected();
-
-	var table = "<div class='row' id='roomList'><div class='col-md-12'><table class='table table-striped' id='roomTable'><thead><th></th><th>Room Name</th><th>Created</th><th>Last Activity</th></thead>";
-
-	var data = pageData;
-	for(var i = start; i <= stop; i++){
-		var checked = false;
-		if(selected.length > 0){
-			for(var index in selected){
-				if(data[i].id == selected[index].id){
-					checked = true;
-					console.log("checked item");
-					break;
-				}
-			}
-		}
-
-		var created = new Date(data[i].created);
-		var activity = new Date(data[i].lastActivity);
-		if(checked){
-			console.log("no selections have been made yet");
-
-			table += "<tr><td><input type='checkbox' name='checkboxes' id='"+data[i].id+"' value='"+data[i].title+"' checked><td>"+data[i].title+"</td><td>"+created.toLocaleString()+"</td><td>"+activity.toLocaleString()+"</td><td></tr>";
-			checked = false;
-		}else{
-			table += "<tr><td><input type='checkbox' name='checkboxes' id='"+data[i].id+"' value='"+data[i].title+"'><td>"+data[i].title+"</td><td>"+created.toLocaleString()+"</td><td>"+activity.toLocaleString()+"</td><td></tr>";
-		}
-		
-	}
-		$("#roomList").remove();
-		$(".container").append(table);
-
-		var button = "</br><button class='btn btn-success' type='button' onclick='reviewSelected()'>Review Selection(s)</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"delete.php\"'>Cancel</button>";
-		$("#roomTable").after(button);
-}
-*/
 
 
 // handle the active page

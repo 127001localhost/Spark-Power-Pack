@@ -31,7 +31,7 @@ function createHook(){
 	        data: JSON.stringify({name: selected[i].value, targetUrl: 'http://api.bdmcomputers.com:8080/spark/'+myId, resource: 'messages', event: 'created', filter: 'roomId='+selected[i].id}),
 			statusCode: {
 				200: function(){
-					$(".container").html('<div class="jumbotron"><h2>Your Jabber Alerts have been created!</h2><p>In order to see these alerts in Jabber, follow these simple steps: ******** ADD stuff here ***********</p><button class="btn btn-normal" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>');
+					$(".container").html('<div class="jumbotron"><h2>Your Jabber Alerts have been created!</h2><p>In order to see these alerts in Jabber, follow these simple steps.<h4> Jabber for Mac:</h4> <ul><li>Open Jabber and click File -> New Custom Tab</li><li>"Create a new custom tab" will pop up. Provide a name for the tab (Spark Alerts). Copy and Paste the following in the page URL http://spark.bdmcomputers.com/jabberTab.php and click Create!</li><li>You will now see a new icon near the lower left of the Jabber screen. </li></ul><img src="images/tab3.jpg"></p><button class="btn btn-normal" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>');
 				}
 			}
 		});
@@ -60,7 +60,7 @@ function getHooks(){
 				}
 			}
 		}
-			var button = "</br><button class='btn btn-danger' id='removeHook' type='button' onclick='removeHook()'>Remove Selected Alerts</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"tabManager.php\"'>Cancel</button>";
+			var button = "</br><button class='btn btn-danger' id='removeHook' type='button' onclick='removeHook()'>Remove Selected Alerts</button>  <button class='btn btn-normal' type='button' onclick='window.location=\"jabberAlerts.php\"'>Cancel</button>";
 			HTML += "</div></div>";
 			$(".container").html(HTML);
 			$(".table").after(button);

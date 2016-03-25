@@ -4,6 +4,9 @@ var selectedRoom = {};
 var page = 0;
 var pageData = [];
 var sparkToken = localStorage.getItem("sparkToken");
+var url = "https://api.ciscospark.com/v1/rooms";
+var next = "";
+var max = 10;
 
 //////////////////////////////////////
 // Site Layout Control
@@ -16,7 +19,7 @@ $("#existing").click(function() {
 	importType = 1;
 	bread(1);
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms();
+	listRooms(next,url);
 });
 
 $("#new").click(function() {
@@ -139,7 +142,7 @@ function createRoom(){
 	xhttp.send(body);
 }
 
-function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
+function listRooms(next,url){
 		$("#roomButton").hide();
 	
 	// check for cached data
@@ -178,7 +181,7 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 				var match = myRegexp.exec(link);
 				page++;
 				// call listRooms again with the next link
-				listRooms(match[1]);
+				listRooms(match[1], url);
 			}else{
 				//flatten the pageData array 
 				pageData = _.flatten(pageData);
@@ -192,47 +195,41 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 	}
 }
 
-function sortObjectBy(myData, srtValue, srtOrder){
-	//Sort ascending order
-	console.log("srtValue: ", srtValue);
-	console.log("srtOrder: ", srtOrder);
-	console.log("myData passed: ", myData);
-	if (srtOrder == "A"){
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>a.title.localeCompare(b.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>a.created.localeCompare(b.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "A")
-	if (srtOrder == "D"){
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>b.title.localeCompare(a.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>b.created.localeCompare(b.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "D")
-	
-	return myData;
+function sortObjectBy(array, srtKey, srtOrder){
+    if (srtOrder =="A"){
+        if (srtKey =="title" || srtKey =="name"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });    
+        }else{
+
+        return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+
+        }
+    }
+
+    if (srtOrder =="D"){
+        if (srtKey =="title" || srtKey =="name"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            });    
+        }else{
+			return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+        });
+
+        }
+    }
 }
 
 function roomDisplay(){
 	for(var i = 0; i < pageData.length; i++){
-		//console.log(data['items'][i].title);
-		//myRooms.push(data['items'][i]);
 		var roomName = pageData[i].title;
 		var roomId = pageData[i].id;
 
@@ -249,7 +246,7 @@ function refreshRooms(){
 	pageData = [];
 	localStorage.removeItem("roomList");
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms();
+	listRooms(next,url);
 }
 
 function startOver(){

@@ -4,11 +4,14 @@ var selected = []; // array for tracking item selections when moving between pag
 var myRoomTitles = [];
 var sortMethod = {"id": "created"};
 var sortDir = 1; // Ascending
+var url = "https://api.ciscospark.com/v1/rooms";
+var next = "";
+var max = 10;
 
 $("#listRooms").on('click', function(){
 	$("#intro").remove();
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms(); // list my rooms
+	listRooms(next, url); // list my rooms
 });
 
 $(document.body).on('change', '#rooms' ,function(){
@@ -83,15 +86,15 @@ function refreshRooms(){
 	pageData = [];
 	localStorage.removeItem("roomList");
 	$(".container").html('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms();
+	listRooms(next, url);
 }
 
-function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
+function listRooms(next,url){
 	// check for cached data
 	if (localStorage.getItem("roomList")){
 		pageData = JSON.parse(localStorage.getItem("roomList"));
 		page = localStorage.getItem("page");
-		pagination();
+		pagination(max);
 	}else{
 		// check to see if list rooms came back with a "next link"
 		if(next.length > 1){
@@ -123,64 +126,59 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 				var match = myRegexp.exec(link);
 				page++;
 				// call listRooms again with the next link
-				listRooms(match[1]);
+				listRooms(match[1], url);
 			}else{
 				//flatten the pageData array 
 				pageData = _.flatten(pageData);
 				console.log("pageData after flattening, unsorted" , pageData);
-				//pageData.sort((a,b) =>a.title.localeCompare(b.title));
 				pageData = sortObjectBy(pageData,"lastActivity","D");
 				console.log("pageData after flattening, sorted" , pageData);
 				localStorage.setItem("roomList", JSON.stringify(pageData));
 				localStorage.setItem("page", page);
 				// call the pagiation script
-				pagination();
+				pagination(max);
 			}
 		});
 	}
 }
 
-function sortObjectBy(myData, srtValue, srtOrder){
-	//Sort ascending order
-	console.log("srtValue: ", srtValue);
-	console.log("srtOrder: ", srtOrder);
-	console.log("myData passed: ", myData);
-	if (srtOrder == "A"){
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>a.title.localeCompare(b.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>a.created.localeCompare(b.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "A")
-	if (srtOrder == "D"){
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>b.title.localeCompare(a.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>b.created.localeCompare(a.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "D")
-	
-	return myData;
+function sortObjectBy(array, srtKey, srtOrder){
+    if (srtOrder =="A"){
+        if (srtKey =="title" || srtKey =="name"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });    
+        }else{
+
+        return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+
+        }
+    }
+
+    if (srtOrder =="D"){
+        if (srtKey =="title" || srtKey =="name"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            });    
+        }else{
+			return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+        });
+
+        }
+    }
 }
 
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
 	checkSelected();
-	pagination();
+	pagination(max);
 }
 
 function perPage(){
@@ -192,7 +190,7 @@ function perPage(){
 	pagination(max);
 }
 
-function pagination(max=10){
+function pagination(max){
 	$("#progress").remove();
 	//setup page navigation
 	var HTML = "<div class='row'><div class='col-md-6'><h2>Select the rooms you want to leave</h2></div></div>";
@@ -203,7 +201,6 @@ function pagination(max=10){
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
 	var numPages = (totalRooms / max);
-	//var HTML = '<nav><ul class="pagination"><li><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
 	var HTML = '<nav><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
@@ -343,7 +340,7 @@ function getUsers(roomId,roomTitle){
 
 		} //for (var i = 0; i< data.length; i++)
 		console.log("UsersList from the room before sorting is: ", usersList);
-		usersList.sort((a,b) =>a.name.localeCompare(b.name));
+		usersList = sortObjectBy(usersList,"name","D");
 		console.log("UsersList from the room after sorting is: ", usersList);
 		displayUsers(usersList,roomTitle);
 	});
@@ -510,17 +507,15 @@ function displayRoomTitles(){
 	console.log("myRoomTitles.push(roomTitle) in displayRoomTitles()", myRoomTitles);
 
 	$("#removesel").hide();
-	//$("#listRoomsOthers").hide();
 	$("#listRoomsSelf").hide();
 	$("#roomButton").toggleClass('active');
 	$("#step1a").show();
 	$("#listRoomsOthers").removeClass("active");
 	console.log("myRoomTitles before sorting: ", myRoomTitles);
-	myRoomTitles.sort((a,b) =>a.title.localeCompare(b.title));
+	myRoomTitles = sortObjectBy(myRoomTitles,"title","D");
 	console.log("myRoomTitles after sorting: ", myRoomTitles);
 	for (var i =0; i < myRoomTitles.length; i++){
 		var roomName = myRoomTitles[i].title;
-		//var roomId = rooms['items'][i].id;
 		var created = new Date(myRoomTitles[i].created);
 		var activity = new Date(myRoomTitles[i].lastActivity);
 		$("#rooms").append("<option value="+i+">"+roomName+"</option>");

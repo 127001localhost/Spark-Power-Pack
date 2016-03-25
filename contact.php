@@ -35,7 +35,7 @@ End of message
 mail($myemail, $type, $message);
 
 /* Redirect visitor to the thank you page */
-header('Location: powerpack.php');
+header('Location: feedback.php?thank=1');
 exit();
 
 /* Functions we used */

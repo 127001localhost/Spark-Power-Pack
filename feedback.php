@@ -1,8 +1,22 @@
 <?php
   include 'includes/header.php';
-?>
-  <?= $header; ?>
-  		<div class="container">
+
+  	if ($_GET['thank']) {
+  		echo $header;
+  		echo '<div class="container">
+  				<div class="jumbotron">
+  					<h3>Thank you for the feedback!</h3>
+  				</div>
+  			</div>
+  		</body>
+		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+		  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+		  <script type="text/javascript" src="js/common.js"></script>
+		</html>';
+
+  	}else{
+  		echo $header;
+  		echo '<div class="container">
     
 			<form class="form-horizontal" method="post" action="contact.php">
 			<fieldset>
@@ -63,4 +77,6 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
-</html>
+ </html>';
+}
+?>

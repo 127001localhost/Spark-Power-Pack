@@ -4,6 +4,7 @@ var pageData = [];
 var selected = []; // array for tracking item selections when moving between pages 
 var sortMethod = {"id": "title"};
 var sortDir = 1; // Ascending
+var max = 10;
 
 $("#create").on("click", function(){
 	$("#intro").remove();
@@ -83,7 +84,7 @@ function listRooms(next,url){
 	if (localStorage.getItem("roomList")){
 		pageData = JSON.parse(localStorage.getItem("roomList"));
 		page = localStorage.getItem("page");
-		pagination();
+		pagination(max);
 	}else{
 		// check to see if list rooms came back with a "next link"
 		if(next.length > 1){
@@ -123,50 +124,11 @@ function listRooms(next,url){
 				localStorage.setItem("roomList", JSON.stringify(pageData));
 				localStorage.setItem("page", page);
 				// call the pagiation script
-				pagination();
+				pagination(max);
 			}
 		});
 	}
 }
-
-/*
-function sortObjectBy(myData, srtValue, srtOrder){
-	//Sort ascending order
-	console.log("srtValue: ", srtValue);
-	console.log("srtOrder: ", srtOrder);
-	console.log("myData passed: ", myData);
-	if (srtOrder == "A"){
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>a.title.localeCompare(b.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>a.created.localeCompare(b.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "A")
-	if (srtOrder == "D"){
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>b.title.localeCompare(a.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>b.created.localeCompare(b.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "D")
-	
-	return myData;
-}
-*/
 
 function sortObjectBy(array, srtKey, srtOrder){
     if (srtOrder =="A"){
@@ -205,7 +167,7 @@ function sortObjectBy(array, srtKey, srtOrder){
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
 	checkSelected();
-	pagination();
+	pagination(max);
 }
 
 function perPage(){
@@ -218,7 +180,7 @@ function perPage(){
 }
 
 
-function pagination(max=10){
+function pagination(max){
 	$("#progress").remove();
 	//setup page navigation
 	var HTML = "<div class='row'><div class='col-md-6'><h2>Select rooms to receive alerts on</h2></div></div>";

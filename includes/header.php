@@ -5,7 +5,7 @@ $header = '
 <head>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css">
+  <link rel="stylesheet" href="css/font-awesome.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
   <title>Spark Power Pack</title>
 </head>

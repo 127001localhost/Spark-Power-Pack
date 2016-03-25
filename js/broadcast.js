@@ -5,14 +5,16 @@ var selected = []; // array for tracking item selections when moving between pag
 var sparkToken = localStorage.getItem("sparkToken");
 var sortMethod = {"id": "created"};
 var sortDir = 1; // Ascending
+var url = "https://api.ciscospark.com/v1/rooms";
+var next = "";
+var max = 10;
 
-/*
-$("#listRooms").on('click', function(){
+$("#listRooms").on("click", function(){
 	$("#intro").remove();
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms(); // list my rooms
+	listRooms(next, url); // list my rooms
 });
-*/
+
 
 function sendSelected(){
 	message = $("#myMessage").val();
@@ -32,7 +34,6 @@ function getMembershipId(roomId){
 		sendMessage(data.items[0].id,"Hello from from SparkPowerPAK");
 	});
 }
-
 
 function sendMessage(roomId,theMessage){
 	var count = 0;
@@ -56,9 +57,66 @@ function refreshRooms(){
 	pageData = [];
 	localStorage.removeItem("roomList");
 	$(".container").html('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms();
+	listRooms(next, url);
 }
 
+var next = "";
+var url = "https://api.ciscospark.com/v1/rooms";
+
+function listRooms(next,url){
+	// check for cached data
+	if (localStorage.getItem("roomList")){
+		pageData = JSON.parse(localStorage.getItem("roomList"));
+		page = localStorage.getItem("page");
+		pagination(max);
+	}else{
+		// check to see if list rooms came back with a "next link"
+		if(next.length > 1){
+			url = next;
+		}else{
+			url = url+"?max=100";
+		}
+
+		$.ajax({
+			url: url,
+			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+			cache: false,
+			method: "GET",
+			statusCode: {
+				502: function(){
+					$("#roomButton").hide();
+					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
+
+				}
+			}
+		}).done(function(data, status, xhr){
+			//pagination
+			pageData.push(data.items);
+
+			//parse the next link from the respone header
+			var link = xhr.getResponseHeader('Link');
+			if(link){
+				var myRegexp = /(http.+)(>)/g;
+				var match = myRegexp.exec(link);
+				page++;
+				// call listRooms again with the next link
+				listRooms(match[1], url);
+			}else{
+				//flatten the pageData array and store in localStorage
+				pageData = _.flatten(pageData);
+				pageData = sortObjectBy(pageData,"title","A");
+				localStorage.setItem("roomList", JSON.stringify(pageData));
+				localStorage.setItem("page", page);
+				// call the pagiation script
+				pagination(max);
+			}
+		});
+	}
+}
+
+
+
+/*
 function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 	// check for cached data
 	if (localStorage.getItem("roomList")){
@@ -109,52 +167,51 @@ function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
 		});
 	}
 }
+*/
 
-function sortObjectBy(myData, srtValue, srtOrder){
-	//Sort ascending order
-	console.log("srtValue: ", srtValue);
-	console.log("srtOrder: ", srtOrder);
-	console.log("myData passed: ", myData);
-	if (srtOrder == "A"){
-		console.log("srtOrder by ascending values")
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>a.title.localeCompare(b.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>a.created.localeCompare(b.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>a.lastActivity.localeCompare(b.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "A")
-	if (srtOrder == "D"){
-		console.log("srtOrder by descending values")
-		if (srtValue == "title"){		
-			myData.sort((a,b) =>b.title.localeCompare(a.title));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "title")
-		if (srtValue == "created"){		
-			myData.sort((a,b) =>b.created.localeCompare(a.created));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "created")
-		if (srtValue == "lastActivity"){		
-			myData.sort((a,b) =>b.lastActivity.localeCompare(a.lastActivity));
-			console.log("myData is now: ",myData);
-			} //(srtValue == "lastActivity")
-	} //(srtOrder == "D")
-	console.log("------------------------")
-	return myData;
+function sortObjectBy(array, srtKey, srtOrder){
+    if (srtOrder =="A"){
+        if (srtKey =="title" || srtKey =="name"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });    
+        }else{
+
+        return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+
+        }
+
+    }
+
+    if (srtOrder =="D"){
+        if (srtKey =="title" || srtKey =="name"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            });    
+        }else{
+
+        return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+        });
+
+        }
+
+    }
+
 }
+
 
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
 	checkSelected();
-	pagination();
+	pagination(max);
 }
-
 
 
 function perPage(){
@@ -166,18 +223,20 @@ function perPage(){
 	pagination(max);
 }
 
-/* Original
-function pagination(max=10){
+
+function pagination(max){
 	$("#progress").remove();
 	//setup page navigation
-	var HTML = "<div class='row'><div class='col-md-6'><h3>Select the rooms you want to broadcast to</h3></div></div>";
+	var HTML = "<div class='row'><div class='col-md-6'><h2>Select the rooms you want to broadcast to</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = "<div class='row'><div class='col-md-6'><span>Rooms per/page: <input type='text' placeholder=10 size='2' maxlength='2' id='max'> <button class='btn btn-normal' id='perPage' type='button' onClick='perPage()'>Update</button><h4 id='pageNav'>page(s): </h4></span></div><div>";
+	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="2" maxlength="2" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
 	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
+	//console.log(totalRooms);
 	var numPages = (totalRooms / max);
-	var HTML = "<h4 id='pageNav' style='display: inline-block;'>page(s): ";
+
+	var HTML = '<nav><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;
@@ -185,15 +244,22 @@ function pagination(max=10){
 			stop = totalRooms - 1;
 		}
 		var pageDisplay = i + 1;
-		HTML += " <a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a> ";
+		if (pageDisplay == 1){
+			HTML += "<li class='active'><a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a></li>";
+		}else{
+			HTML += "<li><a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a></li>";
+		}
+		
 	}
-	HTML += "</h4> <a onClick='refreshRooms()' alt='click to refresh rooms'><i class='glyphicon glyphicon-refresh'></i></a></span></div><div>";
-	$("#pageNav").html(HTML);
+
+	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul></nav></div><div>';
+	$(".container").append(HTML);
 
 	roomDisplay(0,max-1);
 }
-*/
 
+/*
 function pagination(max=10){
 	$("#progress").remove();
 	//setup page navigation
@@ -227,7 +293,7 @@ function pagination(max=10){
 	$(".container").append(HTML);
 
 	roomDisplay(0,max-1);
-}
+}*/
 
 function roomDisplay(start,stop){
 	checkSelected();

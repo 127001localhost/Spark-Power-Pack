@@ -129,6 +129,7 @@ function listRooms(next,url){
 	}
 }
 
+/*
 function sortObjectBy(myData, srtValue, srtOrder){
 	//Sort ascending order
 	console.log("srtValue: ", srtValue);
@@ -165,7 +166,42 @@ function sortObjectBy(myData, srtValue, srtOrder){
 	
 	return myData;
 }
+*/
 
+function sortObjectBy(array, srtKey, srtOrder){
+    if (srtOrder =="A"){
+        if (srtKey =="title"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });    
+        }else{
+
+        return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+
+        }
+
+    }
+
+    if (srtOrder =="D"){
+        if (srtKey =="title"){
+            return array.sort(function (a, b) {
+                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            });    
+        }else{
+
+        return array.sort(function (a, b) {
+            var x = a[srtKey]; var y = b[srtKey];
+            return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+        });
+
+        }
+    }
+}
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
 	checkSelected();

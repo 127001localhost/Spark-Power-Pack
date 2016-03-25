@@ -145,7 +145,6 @@ function sortObjectBy(array, srtKey, srtOrder){
         });
 
         }
-
     }
 
     if (srtOrder =="D"){
@@ -164,6 +163,7 @@ function sortObjectBy(array, srtKey, srtOrder){
         }
     }
 }
+
 function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
 	checkSelected();
@@ -171,6 +171,7 @@ function sortBy(srtValue, srtOrder){
 }
 
 function perPage(){
+	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
 	}else{

@@ -182,6 +182,7 @@ function sortBy(srtValue, srtOrder){
 }
 
 function perPage(){
+	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
 	}else{

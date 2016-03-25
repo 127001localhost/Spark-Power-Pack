@@ -114,61 +114,6 @@ function listRooms(next,url){
 	}
 }
 
-
-
-/*
-function listRooms(next="",url="https://api.ciscospark.com/v1/rooms"){
-	// check for cached data
-	if (localStorage.getItem("roomList")){
-		pageData = JSON.parse(localStorage.getItem("roomList"));
-		page = localStorage.getItem("page");
-		pagination();
-	}else{
-		// check to see if list rooms came back with a "next link"
-		if(next.length > 1){
-			url = next;
-		}else{
-			url = url+"?max=100";
-		}
-
-		$.ajax({
-			url: url,
-			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-			cache: false,
-			method: "GET",
-			statusCode: {
-				502: function(){
-					$("#roomButton").hide();
-					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
-
-				}
-			}
-		}).done(function(data, status, xhr){
-			//pagination
-			pageData.push(data.items);
-
-			//parse the next link from the respone header
-			var link = xhr.getResponseHeader('Link');
-			if(link){
-				var myRegexp = /(http.+)(>)/g;
-				var match = myRegexp.exec(link);
-				page++;
-				// call listRooms again with the next link
-				listRooms(match[1]);
-			}else{
-				//flatten the pageData array 
-				pageData = _.flatten(pageData);
-				pageData = sortObjectBy(pageData,"title","A");
-				localStorage.setItem("roomList", JSON.stringify(pageData));
-				localStorage.setItem("page", page);
-				// call the pagiation script
-				pagination();
-			}
-		});
-	}
-}
-*/
-
 function sortObjectBy(array, srtKey, srtOrder){
     if (srtOrder =="A"){
         if (srtKey =="title" || srtKey =="name"){
@@ -215,6 +160,7 @@ function sortBy(srtValue, srtOrder){
 
 
 function perPage(){
+	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
 	}else{
@@ -258,42 +204,6 @@ function pagination(max){
 
 	roomDisplay(0,max-1);
 }
-
-/*
-function pagination(max=10){
-	$("#progress").remove();
-	//setup page navigation
-	var HTML = "<div class='row'><div class='col-md-6'><h3>Select the rooms you want to broadcast to</h3></div></div>";
-	$(".container").html(HTML);
-	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="2" maxlength="2" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
-	$(".container").append(pageNav);	
-
-	var totalRooms = pageData.length;
-	//console.log(totalRooms);
-	var numPages = (totalRooms / max);
-	//var HTML = '<nav><ul class="pagination"><li><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
-	var HTML = '<nav><ul class="pagination">';
-	for(var i = 0; i < numPages; i++){
-		var start = i * max;
-		var stop = start + max-1;
-		if(stop > totalRooms){
-			stop = totalRooms - 1;
-		}
-		var pageDisplay = i + 1;
-		if (pageDisplay == 1){
-			HTML += "<li class='active'><a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a></li>";
-		}else{
-			HTML += "<li><a onClick='roomDisplay("+start+","+stop+")'>"+pageDisplay+"</a></li>";
-		}
-		
-	}
-
-	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
-	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul></nav></div><div>';
-	$(".container").append(HTML);
-
-	roomDisplay(0,max-1);
-}*/
 
 function roomDisplay(start,stop){
 	checkSelected();

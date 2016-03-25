@@ -23,7 +23,7 @@ $header = '
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="jabberAlerts.php">Manage Alerts</a></li>
+        <li class="active"><a href="jabberAlerts.php" target="_blank">Manage Alerts</a></li>
         <li><a href="#" id="refreshToken" onclick="refreshToken()"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
       </ul>
     </div>

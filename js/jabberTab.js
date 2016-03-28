@@ -6,6 +6,13 @@ if(localStorage.getItem("sparkToken") != null){
   var cachedMessages = [];
   var totalMessages = 0;
 
+    $("#profile").append("<img class=\"user dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" src=\""+localStorage.getItem("myAvatar")+"\">");
+
+  function refreshToken(){
+    localStorage.clear();
+    window.location="jabberTab.php";
+  }
+
   var socket = io.connect('http://api.bdmcomputers.com:8080');
   socket.emit('join', {sparkUserId: myId});
   socket.on('news', function (){
@@ -78,7 +85,9 @@ if(localStorage.getItem("sparkToken") != null){
 
 
         // updates the Jabber Badge
+        console.log(count);
         window.external.SetNotificationBadge(count);
+
   }
 
   function displayMsg(){
@@ -95,16 +104,20 @@ if(localStorage.getItem("sparkToken") != null){
     var roomId = $(this).closest(".alert-box").attr("id");
     $("#"+roomId).remove();
 
+
     $.ajax({
       url: "http://api.bdmcomputers.com:8080/spark",
       headers: {'Content-Type': 'application/json'},
       cache: false,
       method: "DELETE",
       dataType: 'json',
-      data: JSON.stringify({roomId: roomId, id: myId})
-    }).done(function(){
-      // loadAlerts will reset the badge counter
-      loadAlerts();
+      data: JSON.stringify({roomId: roomId, id: myId}),
+      statusCode: {
+        200: function(){
+          // loadAlerts will reset the badge counter
+          loadAlerts();
+        }
+      }
     });
   });
 

@@ -17,7 +17,7 @@
 	            <a href="#" class="btn btn-primary" id="bread2">Select Contacts</a>
 	            <a href="#" class="btn btn-primary" id="bread3">Create</a>
 	            <a class="btn btn-primary" onClick='refreshRooms()'><i class="glyphicon glyphicon-refresh"></i></a>
-
+	            <i class="label label-warning" style="margin-left: 5px; margin-top: 2px;">Missing a room? Refresh your rooms with button to the left.</i>
 	        </div>
 		</div>
 		</br>

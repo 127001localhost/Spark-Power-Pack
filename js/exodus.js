@@ -202,7 +202,7 @@ function pagination(max){
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
 	var numPages = (totalRooms / max);
-	var HTML = '<nav><ul class="pagination">';
+	var HTML = '<div class="row"><div class="col-md-12"><nav style="display: inline-block;"><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;
@@ -219,7 +219,7 @@ function pagination(max){
 	}
 
 	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
-	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul></nav></div><div>';
+	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div></div>';
 	$(".container").append(HTML);
 
 	roomDisplay(0,max-1);

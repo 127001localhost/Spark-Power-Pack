@@ -123,3 +123,9 @@
 .quick-buttons:hover{
   background-color: #eee;
 }
+
+.cached {
+  margin-top: 30px;
+  margin-left: 5px;
+  float: right;
+}

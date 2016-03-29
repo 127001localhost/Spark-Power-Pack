@@ -185,6 +185,9 @@ function perPage(){
 	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
+		if(max > pageData.length){
+			max = pageData.length;
+		}
 	}else{
 		max = 10;
 	}
@@ -196,12 +199,18 @@ function pagination(max){
 	//setup page navigation
 	var HTML = "<div class='row'><div class='col-md-6'><h2>Select the rooms you want to leave</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="2" maxlength="2" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
+	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="3" maxlength="3" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
 	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
-	var numPages = (totalRooms / max);
+	if(totalRooms <= max){
+		var numPages = 1;
+		max = totalRooms;
+	}else{
+		var numPages = (totalRooms / max);
+	}
+	
 	var HTML = '<div class="row"><div class="col-md-12"><nav style="display: inline-block;"><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;

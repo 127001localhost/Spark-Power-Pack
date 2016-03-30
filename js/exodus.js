@@ -7,6 +7,7 @@ var sortDir = 1; // Ascending
 var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
 var max = 10;
+var results = [];
 
 $("#listRooms").on('click', function(){
 	$("#intro").remove();
@@ -30,11 +31,11 @@ function getMembershipId(roomId, personId, num){
 		method: "GET"
 	}).done(function(data){
 		//console.log(data);
-		leaveRoom(data.items[0].id, num);
+		leaveRoom(data.items[0].id, num, roomId);
 	});
 }
 
-function leaveRoom(membershipId, num){
+function leaveRoom(membershipId, num, roomId){
 	$.ajax({
 		url: "https://api.ciscospark.com/v1/memberships/"+membershipId,
 		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
@@ -42,17 +43,39 @@ function leaveRoom(membershipId, num){
 		method: "DELETE",
 		statusCode: {
 			204: function(){
+				results.push({"roomId": roomId, "status": "success"});
+				displayResults();
+			},
+			403: function(){
+				results.push({"roomId": roomId, "status": "failed"});
+				displayResults();
 			}
 		}
 	});
-	if(num == selected.length){
-		var HTML = '<div class="jumbotron"><h2>You left the following rooms:</h2>';
-		for(var i = 0; i < selected.length; i++){
-			HTML += "<p>"+selected[i].value+"</p>";
+
+	function displayResults(){
+		console.log(num);
+		if(num == selected.length){
+			var HTML = '<div class="jumbotron"><h2>Exodus Results:</h2>';
+			for(var i = 0; i < selected.length; i++){
+				var thisId = selected[i].id;
+				for(index in results){
+					if (thisId == results[index].roomId){
+						if(results[index].status == "success"){
+							HTML += "<p><i class='glyphicon glyphicon-ok text-success'></i> "+selected[i].value+" was removed successfully.</p>";
+						}else{
+							HTML += "<p><i class='glyphicon glyphicon-remove text-danger' style='syle: red;'></i> "+selected[i].value+" could not be removed.</p>";
+						}
+					}
+				}
+				
+			}
+			HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>';
+			HTML += '<p>Couldn\'t leave a selected room? The current API doesn\'t allow removal of 1 to 1 rooms. Check to make sure the selected room wasn\'t a 1to1 room.</p>';
+			$(".container").html(HTML);
 		}
-		HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
-		$(".container").html(HTML);
 	}
+
 }	
 
 function leaveSelected(){

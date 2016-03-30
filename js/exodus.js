@@ -255,7 +255,7 @@ $(document).on('click', 'th a', function() {
 function roomDisplay(start,stop){
 	checkSelected();
 
-	var table = '<div class="row" id="roomList"><div class="col-md-12"><table class="table table-striped" id="roomTable"><thead><th></th><th>Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th><th>Created <a class="glyphicon glyphicon-sort" id="created"></a></th><th>Last Activity <a class="glyphicon glyphicon-sort" id="lastActivity"></a></th></thead>';
+	var table = '<div class="row" id="roomList"><div class="col-md-12"><table class="table table-striped" id="roomTable"><thead><th></th><th width="55%">Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th><th width="20%">Created <a class="glyphicon glyphicon-sort" id="created"></a></th><th width="20%">Last Activity <a class="glyphicon glyphicon-sort" id="lastActivity"></a></th></thead>';
 
 	var data = pageData;
 	for(var i = start; i <= stop; i++){

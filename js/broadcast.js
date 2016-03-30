@@ -163,6 +163,9 @@ function perPage(){
 	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
+		if(max > pageData.length){
+			max = pageData.length;
+		}
 	}else{
 		max = 10;
 	}
@@ -175,12 +178,17 @@ function pagination(max){
 	//setup page navigation
 	var HTML = "<div class='row'><div class='col-md-6'><h2>Select the rooms you want to broadcast to</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="2" maxlength="2" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
+	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="3" maxlength="3" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
 	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
-	var numPages = (totalRooms / max);
+	if(totalRooms <= max){
+		var numPages = 1;
+		max = totalRooms;
+	}else{
+		var numPages = (totalRooms / max);
+	}
 
 	var HTML = '<nav style="display: inline-block;"><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
@@ -208,7 +216,7 @@ function pagination(max){
 function roomDisplay(start,stop){
 	checkSelected();
 
-	var table = '<div class="row" id="roomList"><div class="col-md-12"><table class="table table-striped" id="roomTable"><thead><th></th><th>Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th><th>Created <a class="glyphicon glyphicon-sort" id="created"></a></th><th>Last Activity <a class="glyphicon glyphicon-sort" id="lastActivity"></a></th></thead>';
+	var table = '<div class="row" id="roomList"><div class="col-md-12"><table class="table table-striped" id="roomTable"><thead><th></th><th width="55%">Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th><th width="20%">Created <a class="glyphicon glyphicon-sort" id="created"></a></th><th width="20%">Last Activity <a class="glyphicon glyphicon-sort" id="lastActivity"></a></th></thead>';
 
 	var data = pageData;
 	for(var i = start; i <= stop; i++){

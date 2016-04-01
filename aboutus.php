@@ -11,7 +11,7 @@
 		<h4>Software Developer</h4><a href="https://www.linkedin.com/in/bmcallis"><img src="images/linkedin.png" width="40px"></a><a href="http://www.twitter.com/bmcallister"><img src="images/twitter.png" width="40px"></a><a href="tel:+18476786776"><img src="images/phone.png" width="35px"></a></div></div>
 
 		<div class="col-md-4"><div style="text-align: center;"><h3>Jim Matthews</h3><h4>CH-IN Territory - SE</h4><img class="profile-large" src="https://1efa7a94ed216783e352-c62266528714497a17239ececf39e9e2.ssl.cf1.rackcdn.com/V1~e27a398d57b03c0c7b3c0b2568161b06~Z42bkfnyTC2S_xwnKsp3_Q==~1600" height="100px">
-		<h4>Marketing Engineer</h4><img src="images/linkedin.png" width="40px"></a><a href="http://www.twitter.com/bmcallister"><img src="images/twitter.png" width="40px"></a><a href="tel:+18476786250"><img src="images/phone.png" width="35px"></a></div></div>
+		<h4>Marketing Engineer</h4><img src="images/linkedin.png" width="40px"></a><a href="http://www.twitter.com/jamesm81"><img src="images/twitter.png" width="40px"></a><a href="tel:+18476786250"><img src="images/phone.png" width="35px"></a></div></div>
 
 	</div>
 		<br/>

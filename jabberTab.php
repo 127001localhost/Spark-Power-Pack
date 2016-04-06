@@ -15,4 +15,5 @@
 	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 	<script type="text/javascript" src="js/jabberAuth.js"></script>
 	<script type="text/javascript" src="js/jabberTab.js"></script>
+	<?php include_once("analyticstracking.php") ?>
 </html>

@@ -38,7 +38,7 @@ if(localStorage.getItem("sparkToken") != null){
     for (var i = 0; i < data.length; i++){
           var created = new Date(data[i].created);
 
-          HTML += '<div class="alert-box" id="'+data[i].roomId+'"><div class="alert-header"><i class="badge" style="float: left;  background-color: red;">'+data[i].count+'</i><h4 style="display: inline-block; margin-top: 0px;">'+data[i].title+'</h4><i class="glyphicon glyphicon-remove ack" style="float: right; color: red; display: inline-block;"></i></div><hr style="margin: 0px;">';
+          HTML += '<div class="alert-box" id="'+data[i].roomId+'"><div class="alert-header"><i class="badge" style="float: left;  background-color: red;">'+data[i].count+'</i><div class="quick-title">'+data[i].title+'</div><i class="glyphicon glyphicon-remove ack" style="float: right; color: red; display: inline-block;"></i></div><hr style="margin: 0px;">';
 
           var messages = data[i].msgs;
           var displayMsg = messages.length - 1;

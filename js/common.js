@@ -1,5 +1,8 @@
 //Global variables
-if(localStorage.getItem("sparkToken")){
+var currentTime = new Date().getTime() / 1000;
+var expiresIn = localStorage.getItem("expires_in");
+
+if(localStorage.getItem("sparkToken") && currentTime < expiresIn){
 	var sparkToken = localStorage.getItem("sparkToken");
 
 	if(localStorage.getItem("myAvatar") != "undefined") {

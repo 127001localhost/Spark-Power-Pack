@@ -5,7 +5,9 @@ var accessCode="";
 
 // If so user has already authenticated, and  page has been reloaded via the Redirect URI
 window.onload = function(e) {
-	if (localStorage.getItem("sparkToken") != null) {
+	var currentTime = new Date().getTime() / 1000;
+	var expiresIn = localStorage.getItem("expires_in");
+	if (localStorage.getItem("sparkToken") != null && currentTime < expiresIn) {
 		window.location="powerpack.php";
 	}else{
 		//document.getElementById('redirectUri').value=window.location.href.split("?")[0]; // Detect the current page's base URL
@@ -67,11 +69,12 @@ function requestToken(){
 				console.log(data);
 				sparkToken = "Bearer " + data['access_token'];
 				var refresh = data['refresh_token'];
-				var refreshExp = data['exires_in'];
-				var refreshToken = data['refresh_token_expires'];
+				var refreshExp = data['expires_in'];
+				var refreshToken = data['refresh_token_expires_in'];
+				var currentTime = new Date().getTime() / 1000;
 				localStorage.setItem("sparkToken", sparkToken);
 				localStorage.setItem("refreshToken", refresh);
-				localStorage.setItem("expires_in", refreshExp);
+				localStorage.setItem("expires_in", currentTime + refreshExp);
 				localStorage.setItem("refresh_token_expres", refreshToken);
 				me();
 			}

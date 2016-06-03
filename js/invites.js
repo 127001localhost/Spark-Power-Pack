@@ -75,6 +75,7 @@ $(document).on('change', '#rooms', function() {
 function add(finalEmailNames){
 	$("#validatedContacts").hide();
 	$("#myContacts").val("");
+	$('.container').append('<h3>Adding contacts:</h3>');
 	// clear the addFailure array
 	addFailure = [];
 	// loop through contacts and add them to room
@@ -160,7 +161,7 @@ function add(finalEmailNames){
 
 			dfd.then(function(){
 				if(_count == _total && a == arrays){
-					$('.container').append('<h3>Contacts Added   </h3> <button class="btn btn-normal" type="button" onClick="startOver()">Home</button>');
+					$('.container').append('<h3>Successfully added '+_count+' contacts!</h3> <button class="btn btn-normal" type="button" onClick="startOver()">Home</button>');
 					if(addFailure.length > 0 && retry < 1){
 						retry = 1;
 						add(addFailure);

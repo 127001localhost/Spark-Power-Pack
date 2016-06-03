@@ -195,7 +195,7 @@ function listRooms(dfd, max){
           console.log("returned exception error: ", failInfo);
           console.log("returned status code: ",failInfo.status);
           console.log("returned statusText: ",failInfo.statusText);
-          return failInfo;
+          dfd.reject(failInfo);
         })
       .done(function(resultsData){
           console.log("ALl of your data:", resultsData);

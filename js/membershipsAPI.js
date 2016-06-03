@@ -231,6 +231,7 @@ function listMemberships(dfd, roomId, personId, personEmail, max){
         console.log("returned exception error: ", failInfo);
         console.log("returned status code: ",failInfo.status);
         console.log("returned statusText: ",failInfo.statusText);
+        dfd.reject(failInfo);
       })
     .done(function(resultsData){
         //console.log("ALl of your data:", resultsData);
@@ -253,6 +254,7 @@ function createAMembership(dfd, roomId, personId, personEmail, isModerator){
         console.log("returned exception error: ", failInfo);
         console.log("returned status code: ",failInfo.status);
         console.log("returned statusText: ",failInfo.statusText);
+        dfd.reject(failInfo);
       })  
     .done(function(resultsData){
         //console.log("Member added to room");
@@ -273,6 +275,7 @@ function getMembershipDetails(membershipId){
         console.log("returned exception error: ", failInfo);
         console.log("returned status code: ",failInfo.status);
         console.log("returned statusText: ",failInfo.statusText);
+        dfd.reject(failInfo);
       })
     .done(function(resultsData){
         console.log("ALl of your data:", resultsData);

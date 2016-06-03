@@ -1,31 +1,56 @@
 var emailNames = [];
 var myRooms = [];
 var selectedRoom = {};
-var page = 0;
+var addFailure = [];
 var pageData = [];
-var sparkToken = localStorage.getItem("sparkToken");
-var url = "https://api.ciscospark.com/v1/rooms";
-var next = "";
-var max = 10;
-
-//////////////////////////////////////
-// Site Layout Control
-/////////////////////////////////////
-var importType = 0;
-// 1 = existing room 
-// 2 = new room
+var page = 0;
+var retry = 0;
 
 $("#existing").click(function() {
+	$('#intro').hide();
 	importType = 1;
-	bread(1);
-	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms(next,url);
+	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data (this may take some time)...</h3></div></div>');
+
+	//retreive room list
+	getRooms();	
 });
 
+var getRooms = function(){
+	// pull a list of rooms
+	var dfd = $.Deferred();
+	listRooms(dfd, "10000");
+	dfd.fail(function(data){
+		handleError(data);
+	});
+	dfd.done(function(data){
+		$("#progress").remove();
+		roomDisplay();
+	});
+};
+
 $("#new").click(function() {
-	importType = 2;
-	bread(1);
+	$('#intro').hide();
 	$("#step1b").show();
+});
+
+$(document).on('click', '#refreshRooms', function(){
+	refreshRooms();
+});
+
+$('#createRoom').click(function(){
+	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Creating Room...</h3></div></div>');
+	var title = $("#newRoom").val();
+	var dfd = $.Deferred();
+	createARoom(dfd, title);
+	dfd.done(function(data){
+		if(data.xhr.status == 200){
+			selectedRoom = JSON.parse(data.xhr.responseText);
+			$('#progress').remove();
+			$('#step1b').remove();
+			$('#step2').show();
+			$('.container').prepend('<h3>Upload or input a list of contacts to add to: ' + title + '</h3>');
+		};
+	});
 });
 
 $("#refreshToken").click(function(){
@@ -36,199 +61,129 @@ $("#startOver").click(function(){
 	startOver();
 });
 
-$('select[name="rooms"]').change(function() {
-	bread(2);
+$(document).on('change', '#rooms', function() {
     var i = $("#rooms").val();
     selectedRoom = pageData[i];
-	$("#dvImportSegments").prepend("<h3>Upload a list of contacts to add to the "+pageData[i].title+" room.</h3>");
+    $('#selectRoom').remove();
+    $('#step2').show();
+	$('.container').prepend("<h3>Upload or input a list of contacts to add to: "+pageData[i].title+"</h3>");
   });
 
-function bread(step){
-	switch(step) {
-		case 1:
-			$("#intro").hide();
-			$("#bread").show();
-			$("#bread1").addClass("active");
-			$("#bread2").removeClass("active");
-			$("#bread3").removeClass("active");
-			break;
-		case 2:
-   			$("#step1a").hide();
-			$("#step1b").hide();
-			$("#bread1").removeClass("active");
-			$("#bread2").addClass("active");
-			$("#bread3").removeClass("active");
-			$("#step2").show();
-			break;
-		case 3:
-			$("#bread").show();
-			$("#bread1").removeClass("active");
-			$("#bread2").removeClass("active");
-			$("#bread3").addClass("active");
-			break;
-		default:
-			$("#bread").hide();
-			$("#bread1").removeClass("active");
-			$("#bread2").removeClass("active");
-			$("#bread3").removeClass("active");
-			break;
-	};
-}
 
 //////////////////////////////////////
 
 function add(finalEmailNames){
+	$("#validatedContacts").hide();
+	$("#myContacts").val("");
+	// clear the addFailure array
+	addFailure = [];
 	// loop through contacts and add them to room
 	console.log("finalEmailNames: ", finalEmailNames);
-	//need to convert it back to a list, since html changed it from a list back to a string
-	finalEmailNames = finalEmailNames.split(",")
-	console.log("finalEmailNames back to list: ", finalEmailNames)
-	for(i in finalEmailNames){
-		personEmail = finalEmailNames[i];
-		console.log("personEmail in add(): ", personEmail);
-		addContact(selectedRoom.id, personEmail);
-		console.log(personEmail + " Added to room");
-	}
-	$("#step2").hide();
-	$("#myContacts").val("");
-	$("#step3").show();
-	bread(3);
-}
 
-function addContact(roomId, personEmail){
-	var body = JSON.stringify({roomId: roomId, personEmail: personEmail});
-	var sucess = 0;
-	// setup HTTPS request
-	xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function(){
-		if(xhttp.readyState == 4){
-			if (xhttp.status == 200) {
-				//var response = JSON.parse(xhttp.responseText);
-				console.log(xhttp.status);
+	if(!Array.isArray(finalEmailNames)){
+			//need to convert it back to a list, since html changed it from a list back to a string
+			finalEmailNames = finalEmailNames.split(",")
+	};
+
+	var total = finalEmailNames.length;
+ 	var arrays = 0;
+	var namesObject = {};
+
+	while(finalEmailNames.length > 200){
+		tempNames = finalEmailNames.splice(0,200);
+		namesObject[arrays] = tempNames;
+    arrays++;
+	};
+	namesObject[arrays] = finalEmailNames;
+  console.log(namesObject);
+
+	var cont = true;
+	var sleepTimer = 0;
+	var a = 0; // current array
+
+	console.log("finalEmailNames back to list: ", finalEmailNames);
+
+	addUserController();
+
+	function addUserController(){
+		if(a <= arrays || a == 0){
+			// check sleep timer
+			if(sleepTimer % 1 == 0 && sleepTimer != 0){
+				console.log("Taking a break");
+				$('.container').append(' <br>Taking a 20 second break<br> ');
+				setTimeout(function(){
+					console.log("resuming");
+					// call adduser function with the appropriate array
+					sleepTimer++;
+					addUser();
+				}, 20000);
 			}else{
-				console.log('Error: ' + xhttp.statusText);
-			}
-		}
-	}
-	xhttp.open('POST', 'https://api.ciscospark.com/v1/memberships', true);
-	xhttp.setRequestHeader('Content-Type', 'application/json');
-	xhttp.setRequestHeader('Authorization', sparkToken);
-	xhttp.send(body);
-}
+				// increment timer
+				sleepTimer++;
+				// call adduser function with the appropriate array
+				addUser();
+			};
 
-function createRoom(){
-	$("#createRoom").toggleClass('active');
-	var title = $("#newRoom").val();
-	var body = JSON.stringify({title: title});
-	xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function(){
-		if(xhttp.readyState == 4){
-			if (xhttp.status == 200) {
-				var response = JSON.parse(xhttp.responseText);
-				selectedRoom = response;
-				console.log(newRoom.id);
-			}else{
-				console.log('Error: ' + xhttp.statusText);
-			}
-			$("#createRoom").removeClass('active');
-			bread(2);
-			$("#dvImportSegments").prepend("<h3>Select a list of contacts to add to the "+title+" room.</h3>");
-
-		}
-	}
-	xhttp.open('POST', 'https://api.ciscospark.com/v1/rooms', true);
-	xhttp.setRequestHeader('Content-Type', 'application/json');
-	xhttp.setRequestHeader('Authorization', sparkToken);
-	xhttp.send(body);
-}
-
-function listRooms(next,url){
-		$("#roomButton").hide();
-	
-	// check for cached data
-	if (localStorage.getItem("roomList")){
-		pageData = JSON.parse(localStorage.getItem("roomList"));
-		page = localStorage.getItem("page");
-		roomDisplay();
-	}else{
-		// check to see if list rooms came back with a "next link"
-		if(next.length > 1){
-			url = next;
+			if(cont == false){
+				console.log('failed, stopping');
+			};
 		}else{
-			url = url+"?max=100";
-		}
-
-		$.ajax({
-			url: url,
-			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-			cache: false,
-			method: "GET",
-			statusCode: {
-				502: function(){
-					$("#roomButton").hide();
-					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
-
-				}
-			}
-		}).done(function(data, status, xhr){
-			//pagination
-			pageData.push(data.items);
-			console.log("my pageData info: ", pageData);
-			//parse the next link from the respone header
-			var link = xhr.getResponseHeader('Link');
-			if(link){
-				var myRegexp = /(http.+)(>)/g;
-				var match = myRegexp.exec(link);
-				page++;
-				// call listRooms again with the next link
-				listRooms(match[1], url);
-			}else{
-				//flatten the pageData array 
-				pageData = _.flatten(pageData);
-				pageData = sortObjectBy(pageData,"title","A");
-				localStorage.setItem("roomList", JSON.stringify(pageData));
-				localStorage.setItem("page", page);
-				// call the pagiation script
-				roomDisplay();
-			}
-		});
+			console.log("i think we are done");
+		};
 	}
-}
 
-function sortObjectBy(array, srtKey, srtOrder){
-    if (srtOrder =="A"){
-        if (srtKey =="title" || srtKey =="name"){
-            return array.sort(function (a, b) {
-                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            });    
-        }else{
+	function addUser(){
+		console.log("current names", namesObject[a]);
+		var _total = namesObject[a].length;
 
-        return array.sort(function (a, b) {
-            var x = a[srtKey]; var y = b[srtKey];
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-        });
+		var _count = 0;
+		for(var i = 0; i < namesObject[a].length; i++){
+			// create deferral 
+			var dfd = $.Deferred();
 
-        }
-    }
+			createAMembership(dfd, selectedRoom.id, null, namesObject[a][i], null);
 
-    if (srtOrder =="D"){
-        if (srtKey =="title" || srtKey =="name"){
-            return array.sort(function (a, b) {
-                var x = a[srtKey].toLowerCase(); var y = b[srtKey].toLowerCase();
-                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
-            });    
-        }else{
-			return array.sort(function (a, b) {
-            var x = a[srtKey]; var y = b[srtKey];
-            return ((x > y) ? -1 : ((x < y) ? 1 : 0));
-        });
+			dfd.fail(function(data){
+				console.log('failed');
+				var cont = handleError(data);
+				if(cont == true){
+					_count++
+					addFailure.push(namesObject[a][i]);
+				};
+			});
 
-        }
-    }
-}
+			dfd.done(function(data){
+				_count++;
+				console.log(data.results.personEmail + " Added to room");
+				$('.container').append(' ' +data.results.personEmail+', ');
+			});
+
+			dfd.then(function(){
+				if(_count == _total && a == arrays){
+					$('.container').append('<h3>Contacts Added   </h3> <button class="btn btn-normal" type="button" onClick="startOver()">Home</button>');
+					if(addFailure.length > 0 && retry < 1){
+						retry = 1;
+						add(addFailure);
+					}else{
+						console.log('these users could not be added');
+					}
+				}else if(_count == _total){
+					a++;
+					addUserController();
+				}else{
+					console.log("still working on this batch ", _count);
+				}
+			});
+		};
+	}
+};
 
 function roomDisplay(){
+	var HTML = "<div id='selectRoom'><div class='row'><div class='col-md-12'><h2>Select the room you wish to invite people to.</h2></div></div>";
+	HTML += "<div class='row'><div class='col-md-6'><div class='form-group' id='roomForm' hidden><select name='rooms' id='rooms' class='form-control'><option value=''>Select a room:</option></select><span id='refreshRooms'><h4 style='display: inline-block;'><i class='glyphicon glyphicon-refresh'></i> Click here to refresh your rooms</h4></span></div>";
+
+	$(".container").append(HTML);
+
 	for(var i = 0; i < pageData.length; i++){
 		var roomName = pageData[i].title;
 		var roomId = pageData[i].id;
@@ -241,13 +196,14 @@ function roomDisplay(){
 }
 
 function refreshRooms(){
-	$("#step1a").hide();
+	$("#selectRoom").remove();
 	$("#roomForm").hide();
 	pageData = [];
 	localStorage.removeItem("roomList");
-	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
-	listRooms(next,url);
-}
+	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data (this may take some time)...</h3></div></div>');
+
+	getRooms();
+};
 
 function startOver(){
 	location.reload();
@@ -351,18 +307,19 @@ function parseContacts(csvData){
 	var RoomMembershipData;
    	var finalEmailNames;
    	
-   	//Get existing Room members and eliminate them from the new email list if they are already in an existing member
-   	getExistingMembership(selectedRoom.id,function(returnedData){
-   	RoomMembershipData = returnedData;
-  	console.log("What am I getting for RoomMembershipData: ",RoomMembershipData);
+  //Get existing Room members and eliminate them from the new email list if they are already in an existing member
+  var dfd = $.Deferred();
+  listMemberships(dfd, selectedRoom.id, null, null, 1000);
 
-  	//compare inputted users to existing users already in the room and return only the new users
+  dfd.done(function(data){
+  	RoomMembershipData = data.results;
+  	console.log(RoomMembershipData);
   	finalEmailNames = newEmails(results.validUsersList,RoomMembershipData);
   	console.log("returned finalEmailNames: ", finalEmailNames);
   	
   	//display the valid new users
   	displayUserCount(finalEmailNames,results.invalidUsersList);
-  	});
+  });
   	
 }
 
@@ -383,7 +340,7 @@ function validEmail(usersList,roomOwner){
 	for (var i = 0; i < usersList.length; i++){
 		var user = usersList[i];
 		console.log("before applying a filter: " + "'" + user + "'");
-		user = user.replace(/[^a-zA-Z0-9@.]/g, '');
+		user = user.replace(/[^a-zA-Z0-9@.\-\+\_]/g, '');
 		console.log("user after filtering out special characters and spaces: " + "'" + user + "'");
 		var goodEmail = re.test(user);
 		console.log("loop # ", i);
@@ -404,11 +361,10 @@ function validEmail(usersList,roomOwner){
 				else{
 					console.log("That is an invalid email:", user);
 					invalidUsersList.push(user);
-					}
 				}
+			}
 
-
-	}
+		}
 	return {validUsersList: validUsersList,
 			invalidUsersList: invalidUsersList};
 };
@@ -418,18 +374,21 @@ function displayUserCount(myemails,invalidUsersList) {
 	console.log("in displayUserCount() now: ");
 	numUsers = myemails.length;
 	console.log("in displayUserCount: finalEmailNames are: ", myemails);
-	var HTML = "<h3>" + numUsers + " new valid users to add to the room</h3>";
+	var HTML = '<h3>' + numUsers + ' new valid users to add to ' +selectedRoom.title+ ' </h3>';
 	if (numUsers > 0){
 		HTML += "<table class=\"table table-condensed\"><th>Email Address</th>";
 		for(i in myemails){
 			HTML += "<tr><td>"+myemails[i]+"</td></tr>";
 		};
 		HTML += "</table>";
-		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\'add(\"" + myemails + "\")'>Add Contacts</button>";
+		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\'add(\"" + myemails + "\")'>Add Contacts</button>   ";
+		HTML += '<button class="btn btn-normal" type="button" onClick="startOver()">Cancel</button>';
 	};
 
-	$("#dvImportSegments").hide();
-	$( "#displayContacts" ).html(HTML);
+	$("#step2").hide();
+	$('.container > h3').remove();
+	$('#validatedContacts').show();
+	$( "#validatedContacts" ).html(HTML);
 	
 	/*
 	//Display the invalid email addresses entered/read from file.
@@ -449,31 +408,15 @@ function displayUserCount(myemails,invalidUsersList) {
 	*/
 }
 
-
-function getExistingMembership(roomId,callback){
-
-	$.ajax({
-		url: "https://api.ciscospark.com/v1/memberships?roomId="+roomId,
-		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-		cache: false,
-		method: "GET"
-	}).done(function(data){
-		console.log("membership: ",data);
-		console.log("Membership Email[0]", data.items[0].personEmail);
-		console.log("data.items: ", data.items);
-		callback(data);
-	});
-}
-
 //compare new list of users with existing users and return only new users.
 function newEmails(emailNames,existingMembers) {
 	var existingEmails = [];
 	console.log("new unique emails: ", emailNames);
 	console.log("existingMembers: ",existingMembers);
-	for(var i = 0; i < Object.keys(existingMembers.items).length; i++){
-		console.log("Existing Members: ",existingMembers.items[i].personEmail);
-		if (existingMembers.items[i].personEmail != ""){
-		existingEmails.push(existingMembers.items[i].personEmail);
+	for(var i = 0; i < Object.keys(existingMembers).length; i++){
+		console.log("Existing Members: ",existingMembers[i].personEmail);
+		if (existingMembers[i].personEmail != ""){
+		existingEmails.push(existingMembers[i].personEmail);
 		}
 	}
 	console.log("existingEmails: ", existingEmails);

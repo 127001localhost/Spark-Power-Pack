@@ -161,7 +161,7 @@ function add(finalEmailNames){
 
 			dfd.then(function(){
 				if(_count == _total && a == arrays){
-					$('.container').append('<h3>Successfully added '+_count+' contacts!</h3> <button class="btn btn-normal" type="button" onClick="startOver()">Home</button>');
+					$('.container').append('<h3>Successfully added '+(total - addFailure.length)+' contacts!</h3> <button class="btn btn-normal" type="button" onClick="startOver()">Home</button>');
 					if(addFailure.length > 0 && retry < 1){
 						retry = 1;
 						add(addFailure);

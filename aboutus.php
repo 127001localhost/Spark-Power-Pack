@@ -17,13 +17,7 @@
 		<br/>
 		<div class="row">
 		<div class="jumbotron">
-			<p>The Spark Power Pack leverages the powerful APIs available to <a href="https://developer.ciscospark.com" target="_blank">Spark Developers</a>. The initial set of APIs focus on the management of Spark Rooms. With access to Spark Power Pack, you can manage your rooms and the people in them. Other features include important room notification via Spark to Cisco Jabber.</p>
-			<ul>
-				<li>Need to update multiple team rooms at the same time with an important message or an alert? Try <a href="broadcast.php">Broadcast</a></li>
-				<li>Need to create a room for a special event? <a href="invites.php">Invites</a> can be used to quickly create and add 100s of users to a room. </li>
-				<li>Been using Spark for a while? Use <a href="exodus.php">Exodus</a> to remove yourself and others from rooms in bulk.</li>
-				<li>Get the best of Jabber & Spark with <a href="jabberAlerts.php">Jabber Alerts</a>. Setup alerts to send a notification to Jabber when an important conversation in Cisco Spark is happening and quickly reply without leaving Jabber!</li>
-			</ul>
+			<p>Thank you for using the Spark Power Pack. We are constantly enhancing the existing tools and on the lookout for new features that can be added. Please use the feedback form to let us know how you are using the tools, features you would like to see, or issues you are running into.</p>
 		</div>
 
 	</div>
@@ -33,6 +27,18 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/common.js"></script>
+	<script type="text/javascript">
+		var emailAddress = localStorage.getItem('myEmail');
+		var idx = emailAddress.indexOf('@cisco.com');
+		if (idx > -1) {
+		  console.log("cisco employee");
+		  $('.jumbotron').append('<h3>We hope our tools have made you a more productive Cisco Employee! Thank our team members with <a target="_blank", href="http://wwwin.cisco.com/HR/compensation/recognition">Connected Recognition!</a></h3>');
+		}else{
+			console.log("external users");
+		}
+
+
+	</script>
 </html>
 
 

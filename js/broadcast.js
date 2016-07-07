@@ -50,7 +50,7 @@ function sendMessage(roomId,theMessage){
 			}
 		}
 	});
-	$(".container").html('<div class="jumbotron"><h3>Success!</h3><p>Your message have been broadcasted!</p><button class="btn btn-normal" type="button" onClick="window.location=\'powerpack.php\'"">Home</button></div>');
+	$(".container").html('<div class="jumbotron"><h3>Success!</h3><p>Your message has been broadcasted!</p><button class="btn btn-normal" type="button" onClick="window.location=\'powerpack.php\'"">Home</button></div>');
 }
 
 function refreshRooms(){

@@ -73,7 +73,6 @@ function leaveRoom(membershipId, num, roomId){
 			}
 		}
 		HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>';
-		HTML += '<p>Couldn\'t leave a selected room? The current API doesn\'t allow removal of 1 to 1 rooms. Check to make sure the selected room wasn\'t a 1to1 room.</p>';
 		$(".container").html(HTML);
 	}
 }

@@ -7,7 +7,11 @@ var sortMethod = {"id": "created"};
 var sortDir = 1; // Ascending
 var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
-var max = 10;
+if (localStorage.getItem("max") === null) {
+  var max = 10;
+}else{
+	var max = parseInt(localStorage.getItem("max"));
+};
 
 $("#listRooms").on("click", function(){
 	$("#intro").remove();
@@ -163,6 +167,7 @@ function perPage(){
 	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
+		localStorage.setItem('max', max);
 		if(max > pageData.length){
 			max = pageData.length;
 		}
@@ -210,6 +215,9 @@ function pagination(max){
 	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div><div>';
 	$(".container").append(HTML);
 
+	// set Max per/page placeholder
+	$("#max").attr("placeholder", max);
+	
 	roomDisplay(0,max-1);
 }
 

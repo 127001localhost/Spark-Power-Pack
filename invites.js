@@ -5,8 +5,6 @@ var addFailure = [];
 var pageData = [];
 var page = 0;
 var retry = 0;
-var finalEmailNames;
-
 
 $("#existing").click(function() {
 	$('#intro').hide();
@@ -50,7 +48,7 @@ $('#createRoom').click(function(){
 			$('#progress').remove();
 			$('#step1b').remove();
 			$('#step2').show();
-			$('.container').prepend('<h3>Upload or input a list of contacts (500 names or less) to add to: ' + title + '</h3>');
+			$('.container').prepend('<h3>Upload or input a list of contacts to add to: ' + title + '</h3>');
 		};
 	});
 });
@@ -77,31 +75,109 @@ $(document).on('change', '#rooms', function() {
 function add(finalEmailNames){
 	$("#validatedContacts").hide();
 	$("#myContacts").val("");
-	$('.container').append('<div class="row" id="progress"><div class="col-md-12 text-center"><h3>Adding contacts to Room: '+selectedRoom.title+'</h3><img src="images/progress-ring.gif"><h4>Depending on the number of contacts you are adding to the room, this may take up to 5 minutes. A message will appear below once the process is complete.</h4></div></div>');
+	$('.container').append('<h3>Adding contacts:</h3>');
 	// clear the addFailure array
 	addFailure = [];
 	// loop through contacts and add them to room
 	console.log("finalEmailNames: ", finalEmailNames);
-	
-$.ajax({
-    type: "POST",
-    cache: false,
-    url: 'http://api.bdmcomputers.com:8080/inviteContacts',
-    dataType: 'json',
-    headers: { 'Content-Type': 'application/json' },
-    data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'token': sparkToken})
-  }).done(function(data){
-  	console.log(data);
-  	if(data.success){
-  		$('.container').html('<h4>Your contacts have been added!<br><br><button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>');
-  	};
-  });
-};
 
-$(document).on('click', '#addContacts', function(e){
-	e.preventDefault();
-	add(finalEmailNames);
-});
+	if(!Array.isArray(finalEmailNames)){
+			//need to convert it back to a list, since html changed it from a list back to a string
+			finalEmailNames = finalEmailNames.split(",")
+	};
+
+	var total = finalEmailNames.length;
+ 	var arrays = 0;
+	var namesObject = {};
+
+	while(finalEmailNames.length > 200){
+		tempNames = finalEmailNames.splice(0,200);
+		namesObject[arrays] = tempNames;
+    arrays++;
+	};
+	namesObject[arrays] = finalEmailNames;
+  console.log(namesObject);
+
+	var cont = true;
+	var sleepTimer = 0;
+	var a = 0; // current array
+
+	console.log("finalEmailNames back to list: ", finalEmailNames);
+
+	addUserController();
+
+	function addUserController(){
+		if(a <= arrays || a == 0){
+			// check sleep timer
+			if(sleepTimer % 1 == 0 && sleepTimer != 0){
+				console.log("Taking a break");
+				$('.container').append(' <br>Taking a 20 second break<br> ');
+				setTimeout(function(){
+					console.log("resuming");
+					// call adduser function with the appropriate array
+					sleepTimer++;
+					addUser();
+				}, 20000);
+			}else{
+				// increment timer
+				sleepTimer++;
+				// call adduser function with the appropriate array
+				addUser();
+			};
+
+			if(cont == false){
+				console.log('failed, stopping');
+			};
+		}else{
+			console.log("i think we are done");
+		};
+	}
+
+	function addUser(){
+		console.log("current names", namesObject[a]);
+		var _total = namesObject[a].length;
+
+		var _count = 0;
+		for(var i = 0; i < namesObject[a].length; i++){
+			// create deferral 
+			var dfd = $.Deferred();
+
+			createAMembership(dfd, selectedRoom.id, null, namesObject[a][i], null);
+
+			dfd.fail(function(data){
+				console.log('failed');
+				var cont = handleError(data);
+				if(cont == true){
+					_count++
+					addFailure.push(namesObject[a][i]);
+				};
+			});
+
+			dfd.done(function(data){
+				_count++;
+				console.log(data.results.personEmail + " Added to room");
+				$('.container').append(' ' +data.results.personEmail+', ');
+			});
+
+			dfd.then(function(){
+				if(_count == _total && a == arrays){
+					$('.container').append('<h3>Successfully added '+(total - addFailure.length)+' contacts!</h3> <button class="btn btn-normal" type="button" onClick="startOver()">Home</button>');
+					if(addFailure.length > 0 && retry < 1){
+						retry = 1;
+						add(addFailure);
+					}else{
+						console.log('these users could not be added');
+					}
+				}else if(_count == _total){
+					a++;
+					addUserController();
+				}else{
+					console.log("still working on this batch ", _count);
+				}
+			});
+		};
+	}
+};
 
 function roomDisplay(){
 	var HTML = "<div id='selectRoom'><div class='row'><div class='col-md-12'><h2>Select the room you wish to invite people to.</h2></div></div>";
@@ -230,6 +306,7 @@ function parseContacts(csvData){
 
 	console.log("Room Owner Removed: ", results.validUsersList);
 	var RoomMembershipData;
+   	var finalEmailNames;
    	
   //Get existing Room members and eliminate them from the new email list if they are already in an existing member
   var dfd = $.Deferred();
@@ -240,8 +317,6 @@ function parseContacts(csvData){
   	console.log(RoomMembershipData);
   	finalEmailNames = newEmails(results.validUsersList,RoomMembershipData);
   	console.log("returned finalEmailNames: ", finalEmailNames);
-  	//truncate list
-  	finalEmailNames = finalEmailNames.splice(0, 500);
   	
   	//display the valid new users
   	displayUserCount(finalEmailNames,results.invalidUsersList);
@@ -300,14 +375,14 @@ function displayUserCount(myemails,invalidUsersList) {
 	console.log("in displayUserCount() now: ");
 	numUsers = myemails.length;
 	console.log("in displayUserCount: finalEmailNames are: ", myemails);
-	var HTML = '<h3>' + numUsers + ' new valid users to add to room: ' +selectedRoom.title+ ' </h3>';
+	var HTML = '<h3>' + numUsers + ' new valid users to add to ' +selectedRoom.title+ ' </h3>';
 	if (numUsers > 0){
 		HTML += "<table class=\"table table-condensed\"><th>Email Address</th>";
 		for(i in myemails){
-			HTML += "<tr><td>"+myemails[i].personEmail+"</td></tr>";
+			HTML += "<tr><td>"+myemails[i]+"</td></tr>";
 		};
 		HTML += "</table>";
-		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\">Add Contacts</button>   ";
+		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\" onClick=\'add(\"" + myemails + "\")'>Add Contacts</button>   ";
 		HTML += '<button class="btn btn-normal" type="button" onClick="startOver()">Cancel</button>';
 	};
 
@@ -316,6 +391,22 @@ function displayUserCount(myemails,invalidUsersList) {
 	$('#validatedContacts').show();
 	$( "#validatedContacts" ).html(HTML);
 	
+	/*
+	//Display the invalid email addresses entered/read from file.
+	console.log("invalidUsersList.length: ", invalidUsersList.length);
+	if (invalidUsersList.length>0){
+		console.log("invalidUsersList.length: ", invalidUsersList.length);
+		var invalHTML = "<h3>" + invalidUsersList.length + " invalid user email addresses</h3>";	
+		invalHTML += "<table class=\"table table-condensed\"><th>Not valid Email Address</th>";
+		for (i in invalidUsersList){
+			invalHTML += "<tr><td>"+invalidUsersList[i]+"</td></tr>";
+		};
+		invalHTML += "</table>";
+	};
+	
+	$("#dvImportSegments").hide();
+	$( "#displayContacts" ).html(invalHTML);
+	*/
 }
 
 //compare new list of users with existing users and return only new users.
@@ -342,7 +433,7 @@ function newEmails(emailNames,existingMembers) {
 			//emailNames.splice(i,1);
 			//console.log("emailNames is now: ", emailNames);
 		} else{
-		tmpEmailNames.push({"personEmail" : myemails});
+		tmpEmailNames.push(myemails);
 		}
 	}
 	tmpEmailNames.pop(); // the last email is undefined, so we need to remove it

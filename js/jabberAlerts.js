@@ -4,7 +4,11 @@ var pageData = [];
 var selected = []; // array for tracking item selections when moving between pages 
 var sortMethod = {"id": "title"};
 var sortDir = 1; // Ascending
-var max = 10;
+if (localStorage.getItem("max") === null) {
+  var max = 10;
+}else{
+	var max = parseInt(localStorage.getItem("max"));
+};
 
 $("#create").on("click", function(){
 	$("#intro").remove();
@@ -173,7 +177,8 @@ function sortBy(srtValue, srtOrder){
 function perPage(){
 	checkSelected();
 	if($("#max").val() > 10){
-		max = parseInt($("#max").val());
+		max = parseInt($("#max").val());	
+		localStorage.setItem('max', max);
 		if(max > pageData.length){
 			max = pageData.length;
 		}
@@ -220,6 +225,9 @@ function pagination(max){
 	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
 	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div><div>';
 	$(".container").append(HTML);
+
+	// set Max per/page placeholder
+	$("#max").attr("placeholder", max);
 
 	roomDisplay(0,max-1);
 }

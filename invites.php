@@ -34,7 +34,7 @@
 			        	<h4>Or input your contacts below</h4>
 			        	<textarea cols="70" rows="5" id="myContacts" name="contacts" placeholder="Enter your contacts in here" ></textarea>
 			        	<h4></h4>
-			        	<button class="btn btn-success" id="addContacts" type="button" onClick="parseContacts()">Submit Contacts</button>
+			        	<button class="btn btn-success" type="button" onClick="parseContacts()">Submit Contacts</button>
 				  			<button class="btn btn-normal" type="button" onClick="startOver()">Cancel</button>
 					</div>
 				</div>

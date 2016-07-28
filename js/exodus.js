@@ -6,8 +6,12 @@ var sortMethod = {"id": "created"};
 var sortDir = 1; // Ascending
 var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
-var max = 10;
 var results = [];
+if (localStorage.getItem("max") === null) {
+  var max = 10;
+}else{
+	var max = parseInt(localStorage.getItem("max"));
+};
 
 $("#listRooms").on('click', function(){
 	$("#intro").remove();
@@ -54,27 +58,25 @@ function leaveRoom(membershipId, num, roomId){
 	});
 
 	function displayResults(){
-		console.log(num);
-		if(num == selected.length){
-			var HTML = '<div class="jumbotron"><h2>Exodus Results:</h2>';
-			for(var i = 0; i < selected.length; i++){
-				var thisId = selected[i].id;
-				for(index in results){
-					if (thisId == results[index].roomId){
-						if(results[index].status == "success"){
-							HTML += "<p><i class='glyphicon glyphicon-ok text-success'></i> "+selected[i].value+" was removed successfully.</p>";
-						}else{
-							HTML += "<p><i class='glyphicon glyphicon-remove text-danger' style='syle: red;'></i> "+selected[i].value+" could not be removed.</p>";
-						}
+	if(results.length == selected.length){
+		var HTML = '<div class="jumbotron"><h2>Exodus Results:</h2>';
+		for(var i = 0; i < selected.length; i++){
+			var thisId = selected[i].id;
+			for(index in results){
+				if (thisId == results[index].roomId){
+					if(results[index].status == "success"){
+						HTML += "<p><i class='glyphicon glyphicon-ok text-success'></i> "+selected[i].value+" was removed successfully.</p>";
+					}else{
+						HTML += "<p><i class='glyphicon glyphicon-remove text-danger' style='syle: red;'></i> "+selected[i].value+" could not be removed.</p>";
 					}
 				}
-				
 			}
-			HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>';
-			HTML += '<p>Couldn\'t leave a selected room? The current API doesn\'t allow removal of 1 to 1 rooms. Check to make sure the selected room wasn\'t a 1to1 room.</p>';
-			$(".container").html(HTML);
 		}
+		HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>';
+		HTML += '<p>Couldn\'t leave a selected room? The current API doesn\'t allow removal of 1 to 1 rooms. Check to make sure the selected room wasn\'t a 1to1 room.</p>';
+		$(".container").html(HTML);
 	}
+}
 
 }	
 
@@ -90,6 +92,7 @@ function leaveSelected(){
 	}
 	localStorage.setItem("roomList", JSON.stringify(pageData));
 }
+
 
 function reviewSelected(){
 	checkSelected(); // check to see what is selected
@@ -116,6 +119,15 @@ function listRooms(next,url){
 	// check for cached data
 	if (localStorage.getItem("roomList")){
 		pageData = JSON.parse(localStorage.getItem("roomList"));
+		var exodusData = [];
+		for(var i = 0; i < pageData.length; i++){
+			if(pageData[i].type != "direct"){
+				exodusData.push(pageData[i]);
+			};
+		};
+		// remove 1:1 rooms for list for Exodus
+		pageData = exodusData;
+
 		page = localStorage.getItem("page");
 		pagination(max);
 	}else{
@@ -158,6 +170,16 @@ function listRooms(next,url){
 				console.log("pageData after flattening, sorted" , pageData);
 				localStorage.setItem("roomList", JSON.stringify(pageData));
 				localStorage.setItem("page", page);
+
+				// remove 1:1 rooms for list for Exodus
+				var exodusData = [];
+				for(var i = 0; i < pageData.length; i++){
+					if(pageData[i].type != "direct"){
+						exodusData.push(pageData[i]);
+					};
+				};
+				pageData = exodusData;
+
 				// call the pagiation script
 				pagination(max);
 			}
@@ -208,6 +230,7 @@ function perPage(){
 	checkSelected();
 	if($("#max").val() > 10){
 		max = parseInt($("#max").val());
+		localStorage.setItem('max', max);
 		if(max > pageData.length){
 			max = pageData.length;
 		}
@@ -232,6 +255,7 @@ function pagination(max){
 		max = totalRooms;
 	}else{
 		var numPages = (totalRooms / max);
+		numPages = Math.ceil(numPages);
 	}
 	
 	var HTML = '<div class="row"><div class="col-md-12"><nav style="display: inline-block;"><ul class="pagination">';
@@ -254,6 +278,9 @@ function pagination(max){
 	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div></div>';
 	$(".container").append(HTML);
 
+	// set Max per/page placeholder
+	$("#max").attr("placeholder", max);
+
 	roomDisplay(0,max-1);
 }
 
@@ -266,19 +293,32 @@ $(document).on('click', 'li', function() {
 
 $(document).on('click', 'th a', function() {
 	if(sortMethod.id == $(this).attr("id") && sortDir == 0){
+		console.log("sorting by: ", $(this).attr("id"));
 		sortBy($(this).attr("id"), "A");
 		sortDir = 1;
 	}else{
+		console.log("sorting by: ", $(this).attr("id"));
 		sortBy($(this).attr("id"), "D");
 		sortMethod.id = $(this).attr("id");
 		sortDir = 0;
 	}
 });
 
+$(document).on('click', '#selectAll', function(e){
+	e.preventDefault();
+	if($("#selectAll").hasClass("selected")){
+		$("#selectAll").removeClass("selected");
+		$(":checkbox").prop('checked', false);
+	}else{
+		$("#selectAll").addClass("selected");
+		$(":checkbox").prop('checked', true);
+	}
+});
+
 function roomDisplay(start,stop){
 	checkSelected();
 
-	var table = '<div class="row" id="roomList"><div class="col-md-12"><table class="table table-striped" id="roomTable"><thead><th></th><th width="55%">Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th><th width="20%">Created <a class="glyphicon glyphicon-sort" id="created"></a></th><th width="20%">Last Activity <a class="glyphicon glyphicon-sort" id="lastActivity"></a></th></thead>';
+	var table = '<div class="row" id="roomList"><div class="col-md-12"><table class="table table-striped" id="roomTable"><thead><th><i class="glyphicon glyphicon-check" id="selectAll"></i></th><th width="55%">Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th><th width="20%">Created <a class="glyphicon glyphicon-sort" id="created"></a></th><th width="20%">Last Activity <a class="glyphicon glyphicon-sort" id="lastActivity"></a></th></thead>';
 
 	var data = pageData;
 	for(var i = start; i <= stop; i++){
@@ -292,7 +332,6 @@ function roomDisplay(start,stop){
 				}
 			}
 		}
-
 		var created = new Date(data[i].created);
 		var activity = new Date(data[i].lastActivity);
 		if(checked){
@@ -439,17 +478,16 @@ function removeUsers(roomTitle){
 					count++;
 				}
 			}
-		}); //function() 
+		}); //function()
+		$("#complete").show();
+		var HTML = "<div class=\"jumbotron\"><h3>Successfully removed the following users from "+roomTitle+" Room</h3><h5></h5>";
+		for(index in selected){
+			HTML += "<p>"+selected[index].name+"</p>";
+		};
+		HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
+		//$("#complete").html(HTML);
+		$(".container").html(HTML);
 	} //for (index in selected)
-
-	$("#complete").show();
-	var HTML = "<div class=\"jumbotron\"><h3>Successfully removed the following users from "+roomTitle+" Room</h3><h5></h5>";
-	for(index in selected){
-		HTML += "<p>"+selected[index].name+"</p>";
-	};
-	HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
-	//$("#complete").html(HTML);
-	$(".container").html(HTML);
 }
 
 

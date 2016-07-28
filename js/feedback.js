@@ -17,3 +17,24 @@ function getIssues(){
     $("#gitHub").html(HTML);
   });
 }
+
+$(document).on('click', '#joinSupport', function(e) {
+  e.preventDefault();
+  var personEmail = localStorage.getItem("myEmail");
+  $.ajax({
+    type: "POST",
+    cache: false,
+    url: 'http://api.bdmcomputers.com:8080/support',
+    dataType: 'json',
+    headers: { 'Content-Type': 'application/json' },
+    data: JSON.stringify({'personEmail': personEmail})
+  }).done(function(data){
+    $('#joinSupport').hide();
+    
+    if(data.success){
+      $('.results').append("<h4 style='color: green'>"+data.success+"</h4>");
+    }else{
+      $('.results').append("<h4 style='color: red'>"+data.error+"</h4>");
+    }
+  });
+});

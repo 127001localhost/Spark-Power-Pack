@@ -23,74 +23,10 @@
             <div id="gitHub"></div>
           </div>
           <div class="col-md-6">
-            <h3>Feedback Form</h3>
-      			<form class="form-horizontal" method="post" action="contact.php">
-      			<fieldset>
-      			<!-- Text input-->
-      			<div class="form-group">
-      			  <label class="col-md-12 control-label" for="name"></label>
-      			  <div class="col-md-12">
-      			  <input id="name" name="name" type="text" placeholder="name" class="form-control input-md" required="">
-
-      			  </div>
-      			</div>
-
-      			<!-- Text input-->
-      			<div class="form-group">
-      			  <label class="col-md-12 control-label" for=""></label>
-      			  <div class="col-md-12">
-      			  <input id="" name="email" type="text" placeholder="email" class="form-control input-md">
-
-      			  </div>
-      			</div>
-
-            <div class="form-group">
-              <label class="col-md-12 control-label" for="OS"></label>
-              <div class="col-md-12">
-              <input id="OS" name="OS" type="text" placeholder="Operating System" class="form-control input-md" required="">
-
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="col-md-12 control-label" for="browser"></label>
-              <div class="col-md-12">
-              <input id="browser" name="browser" type="text" placeholder="Browser" class="form-control input-md" required="">
-
-              </div>
-            </div>
-
-      			<!-- Select Basic -->
-      			<div class="form-group">
-      			  <label class="col-md-12 control-label" for="selectbasic"></label>
-      			  <div class="col-md-12">
-      			    <select id="type" name="type" class="form-control">
-      			      <option value="feature">Feature request</option>
-      			      <option value="bug">I found a Bug</option>
-      			      <option value="help">Help</option>
-      			      <option value="misc">Misc</option>
-      			    </select>
-      			  </div>
-      			</div>
-
-      			<!-- Textarea -->
-      			<div class="form-group">
-      			  <label class="col-md-12 control-label" for="comment"></label>
-      			  <div class="col-md-12">
-      			    <textarea class="form-control" id="comment" name="comment" placeholder="Enter your feedback, bug, etc"></textarea>
-      			  </div>
-      			</div>
-
-      			<!-- Button -->
-      			<div class="form-group">
-      			  <label class="col-md-12 control-label" for="send"></label>
-      			  <div class="col-md-12">
-      			    <button id="send" name="send" class="btn btn-success">Send</button>
-      			  </div>
-      			</div>
-
-      			</fieldset>
-      			</form>
+            <h3>Power Pack Support</h3>
+            <h4>If you have questions or a problem when using the Power Pack, click the button below to join our spark room for support.</h4>
+            <button id="joinSupport" class="btn btn-success" type="button">Join: Power Pack Support</button>
+            <div class="results"></div>
           </div>
         </div>
 

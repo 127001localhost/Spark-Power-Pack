@@ -12,16 +12,25 @@
         <li>Been using Spark for a while? Use <a href="exodus.php">Exodus</a> to remove yourself and others from rooms in bulk.</li>
         <li>Get the best of Jabber & Spark with <a href="jabberAlerts.php">Jabber Alerts</a>. Setup alerts to send a notification to Jabber when an important conversation in Cisco Spark is happening and quickly reply without leaving Jabber!</li>
       </ul>
-      <h2 style="color: #ff0000">*** INVITES Outage: 6/29/16 ***</h2>
-      <p>With recent changes to the Spark API, bulk imports of more than 40 users are resulting in errors. We are working to resolve this and will update this message once a fix is in place.</p>
 
     </div>
-    <div class="text-center">
-      <iframe width="420" height="315" src="https://www.youtube.com/embed/gBiYF5YX_Ug" frameborder="0" allowfullscreen></iframe>
+    <div class="text-center video">
     </div>
   </div>
 </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
+  <script type="text/javascript">
+    var emailAddress = localStorage.getItem('myEmail');
+    var idx = emailAddress.indexOf('@cisco.com');
+    if (idx > -1) {
+      console.log("cisco employee");
+      $('.video').append('<iframe width="640" height="360" src="https://ace-rev.cisco.com/embed?id=4e190f9d-be4f-46e7-a087-9eb4c1dade59" frameborder="0" allowfullscreen></iframe>');
+    }else{
+      $('.video').append(' <iframe width="420" height="315" src="https://www.youtube.com/embed/gBiYF5YX_Ug" frameborder="0" allowfullscreen></iframe>');
+    }
+
+
+  </script>
 </html>

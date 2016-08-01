@@ -22,8 +22,9 @@ $("#listRooms").on("click", function(){
 
 function sendSelected(){
 	message = $("#myMessage").val();
+	var filename = $("#file")[0].files[0];
 	for(i in selected){
-		sendMessage(selected[i].id,message);
+		sendMessage(selected[i].id,message,filename);
 	}
 }
 
@@ -39,20 +40,29 @@ function getMembershipId(roomId){
 	});
 }
 
-function sendMessage(roomId,theMessage){
-	var count = 0;
-	$.ajax({
-		url: "https://api.ciscospark.com/v1/messages",
-		headers: {'Content-Type': 'application/json; charset=utf-8', 'Authorization': sparkToken},
-		cache: false,
-		type: "POST",
-		dataType: 'json',
-        data: JSON.stringify({roomId: roomId, text: theMessage}),
-		statusCode: {
-			200: function(){
-				count++;
-			}
-		}
+function sendMessage(roomId,theMessage,filename){
+	var form = new FormData();
+	form.append("roomId", roomId);
+	form.append("text", theMessage);
+	form.append("files", filename);
+
+	var settings = {
+	  "async": true,
+	  "cache": false,
+	  "crossDomain": true,
+	  "url": "https://api.ciscospark.com/v1/messages",
+	  "method": "POST",
+	  "processData": false,
+	  "contentType": false,
+	  "mimeType": "multipart/form-data",
+	  "data": form,
+	  "headers": {
+	    "authorization": sparkToken
+	  }
+	}
+
+	$.ajax(settings).done(function (response) {
+	  console.log(response);
 	});
 	$(".container").html('<div class="jumbotron"><h3>Success!</h3><p>Your message has been broadcasted!</p><button class="btn btn-normal" type="button" onClick="window.location=\'powerpack.php\'"">Home</button></div>');
 }
@@ -312,9 +322,13 @@ function reviewSelected(){
 	for(index in selected){
 		HTML += "<p>"+selected[index].value+"</p>";
 	};
-	HTML += '<div class="row" id="confirm"><form><textarea cols="100" rows="5" id="myMessage" name="message" placeholder="Type your message here" ></textarea></form><button class="btn btn-success has-spinner" id="send" type="button" onClick="sendSelected()">Send Message</button>  <button class="btn btn-warning has-spinner" id="cancel" type="button" onClick="startOver()">Cancel</button></div>';
+	HTML += '<div class="row" id="confirm"><form id="bcastData" method="post" enctype="multipart/form-data"><textarea cols="100" rows="5" id="myMessage" name="message" placeholder="Type your message here" ></textarea><input type="file" name="file" id="file" /></br><button class="btn btn-success" type="submit">Send Message</button><button class="btn btn-warning" id="cancel" type="button" onClick="startOver()">Cancel</button></form></div>';
 	$(".container").html(HTML);
 }
+$(document).on('submit', 'form#bcastData', function(e) {
+	e.preventDefault();
+	sendSelected();
+});
 
 function startOver(){
 	selected = [];

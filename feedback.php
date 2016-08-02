@@ -25,7 +25,7 @@
           <div class="col-md-6">
             <h3>Power Pack Support</h3>
             <h4>If you have questions or a problem when using the Power Pack, click the button below to join our spark room for support.</h4>
-            <button id="joinSupport" class="btn btn-success" type="button">Join: Power Pack Support</button>
+            <button id="joinSupport" class="btn btn-success" type="button">Join: Ask Power Pack</button>
             <div class="results"></div>
           </div>
         </div>

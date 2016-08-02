@@ -241,7 +241,7 @@ function parseContacts(csvData){
   	finalEmailNames = newEmails(results.validUsersList,RoomMembershipData);
   	console.log("returned finalEmailNames: ", finalEmailNames);
   	//truncate list
-  	finalEmailNames = finalEmailNames.splice(0, 500);
+  	finalEmailNames = finalEmailNames.splice(0, 950);
   	
   	//display the valid new users
   	displayUserCount(finalEmailNames,results.invalidUsersList);

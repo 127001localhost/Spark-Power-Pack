@@ -86,7 +86,7 @@ function add(finalEmailNames){
 $.ajax({
     type: "POST",
     cache: false,
-    url: 'https://sparkpowerpack.com/inviteContacts',
+    url: 'https://sparkpowerpack.com:8443/inviteContacts',
     dataType: 'json',
     headers: { 'Content-Type': 'application/json' },
     data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'token': sparkToken})

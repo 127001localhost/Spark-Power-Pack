@@ -13,7 +13,7 @@ if(localStorage.getItem("sparkToken") != null){
     window.location="jabberTab.php";
   }
 
-  var socket = io.connect('https://sparkpowerpack.com:8443/');
+  var socket = io.connect('https://sparkpowerpack.com:8443');
   socket.emit('join', {sparkUserId: myId});
   socket.on('news', function (){
     if(activeId == ""){
@@ -23,7 +23,7 @@ if(localStorage.getItem("sparkToken") != null){
 
   function loadAlerts(){
     $.ajax({
-      url: "https://sparkpowerpack.com:8443//spark?id="+myId,
+      url: "https://sparkpowerpack.com:8443/spark?id="+myId,
       headers: {'Content-Type': 'application/json'},
       cache: false,
       method: "GET"

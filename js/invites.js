@@ -86,7 +86,7 @@ function add(finalEmailNames){
 $.ajax({
     type: "POST",
     cache: false,
-    url: 'http://api.bdmcomputers.com:8080/inviteContacts',
+    url: 'https://sparkpowerpack.com/inviteContacts',
     dataType: 'json',
     headers: { 'Content-Type': 'application/json' },
     data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'token': sparkToken})

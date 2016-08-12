@@ -93,7 +93,31 @@ $.ajax({
   }).done(function(data){
   	console.log(data);
   	if(data.success){
-  		$('.container').html('<h4>Your contacts have been added!<br><br><button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>');
+      var successList;
+      var arr = data.successTracker;
+      for(var i = 0; i < arr.length; i++){
+        if(i == 0){
+          successList = arr[i];
+        }else{
+          successList += ", "+arr[i];
+        };
+      };
+
+      // Display results to user
+      $('.container').empty();
+      if(arr.length > 0){
+    	 $('.container').append('<h3 style="color: green;">The following contacts were added successfully:</h3><h4>'+successList+'</h4><p>');
+      };
+      // Display errors if present
+      var errors = data.errors;
+      var errorList;
+      if(errors.length > 0){
+        $('.container').append('<h3 style="color: red;">We ran into the following errors:</h3><p>');
+        for(var i = 0; i < errors.length; i++){
+            $('.container').append('<h4>'+errors[i]+'</h4><p>');
+        };
+      };
+      $('.container').append('<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>');
   	};
   });
 };
@@ -103,21 +127,50 @@ $(document).on('click', '#addContacts', function(e){
 	add(finalEmailNames);
 });
 
+
 function roomDisplay(){
-	var HTML = "<div id='selectRoom'><div class='row'><div class='col-md-12'><h2>Select the room you wish to invite people to.</h2></div></div>";
-	HTML += "<div class='row'><div class='col-md-6'><div class='form-group' id='roomForm' hidden><select name='rooms' id='rooms' class='form-control'><option value=''>Select a room:</option></select><span id='refreshRooms'><h4 style='display: inline-block;'><i class='glyphicon glyphicon-refresh'></i> Click here to refresh your rooms</h4></span></div>";
+  var HTML = "<div id='selectRoom'><div class='row'><div class='col-md-12'><h2>Select the room you wish to invite people to.</h2></div></div>";
+  HTML += "<div class='row'><div class='col-md-6'><div class='form-group' id='roomForm' hidden><select name='rooms' id='rooms' class='form-control'><option value=''>Select a room:</option></select><span id='refreshRooms'><h4 style='display: inline-block;'><i class='glyphicon glyphicon-refresh'></i> Click here to refresh your rooms</h4></span></div>";
 
-	$(".container").append(HTML);
+  $(".container").append(HTML);
 
+  // loop through pageData and remove direct rooms and check for locked (moderated rooms)
+  var invitesPageData = [];
+  var deferreds = [];
+  var roomsImod = [];
 	for(var i = 0; i < pageData.length; i++){
-		var roomName = pageData[i].title;
-		var roomId = pageData[i].id;
+    if(pageData[i].isLocked){
+      var dfd = $.Deferred();
+      listMemberships(dfd, pageData[i].id, null, localStorage.getItem('myEmail'), 1);
+      dfd.done(function(response){
+        if(response.results[0].isModerator){
+          roomsImod.push(response.results[0].roomId);
+        };
+      });
+      deferreds.push(dfd);
 
-		$("#rooms").append("<option value="+i+">"+roomName+"</option>");
+    }else if(pageData[i].type != "direct" && pageData[i].isLocked == false){
+      invitesPageData.push(pageData[i]);
+    };
 	}
-	$("#progress").remove();
-	$("#step1a").show();
-	$("#roomForm").show();
+  $.when.apply(null, deferreds).done( function () {
+   $.each(roomsImod, function(i, v) {
+    for(var i = 0; i < pageData.length; i++){
+      if(pageData[i].id == v){
+        invitesPageData.push(pageData[i]);
+      };
+    };
+   });
+  })
+  .then(function(){
+    pageData = sortObjectBy(invitesPageData, "title", "A");
+    for(var i = 0; i < pageData.length; i++){
+      $("#rooms").append("<option value="+i+">"+pageData[i].title+"</option>");
+    }
+    $("#progress").remove();
+    $("#step1a").show();
+    $("#roomForm").show();
+  });
 }
 
 function refreshRooms(){

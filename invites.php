@@ -5,6 +5,7 @@
 	<div class="container">
 		<div class="jumbotron" id="intro">
 			<h2>Invites:</h2>
+			<h3 style="color: red;">Major changes have been made to the invites tool on 8/12/16. If you have not already done so, please log out and re-authorize the app.</h3>
 			<p>This tool will allow you to invite contacts to your rooms in bulk. Would you like to add contacts to an existing room or create a new room?<p>
 			<button class="btn btn-warning" id="existing" type="button">Existing Room</button>
 			<button class="btn btn-success" id="new" type="button">Create Room</button>

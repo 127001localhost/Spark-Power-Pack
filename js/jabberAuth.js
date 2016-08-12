@@ -1,6 +1,6 @@
 var sparkToken = "";
 var clientId = "Cfad29d7cc842ef10a7679ca8e42826edd16abd241c46c9b43069087fd5d32e4f";
-var appRedirectUri="http://spark.bdmcomputers.com/jabberTab.php";
+var appRedirectUri="https://sparkpowerpack.com/jabberTab.php";
 var accessCode="";
 
 // If so user has already authenticated, and  page has been reloaded via the Redirect URI
@@ -59,7 +59,7 @@ function requestCode() {
 // Step #2: Request a Token
 function requestToken(){
 		$.ajax({
-		url: "http://api.bdmcomputers.com:8080/spark/token?accessCode="+accessCode,
+		url: "https://sparkpowerpack.com:8443/spark/token?accessCode="+accessCode,
 		headers: {'Content-Type': 'application/json'},
 		cache: false,
 		type: "GET",

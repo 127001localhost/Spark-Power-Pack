@@ -89,7 +89,7 @@ $.ajax({
     url: 'https://sparkpowerpack.com:8443/inviteContacts',
     dataType: 'json',
     headers: { 'Content-Type': 'application/json' },
-    data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'token': sparkToken})
+    data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'token': sparkToken, 'isLocked': selectedRoom.isLocked, 'teamId': selectedRoom.teamId})
   }).done(function(data){
   	console.log(data);
   	if(data.success){

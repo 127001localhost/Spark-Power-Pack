@@ -49,7 +49,8 @@ function requestCode() {
 		'client_id=' + encodeURIComponent(clientId) + '&' + // The custom app Client ID
 		'response_type=code&' + // Requesting the OAuth2 'Authentication Code' flow
 		'redirect_uri=' + encodeURIComponent(appRedirectUri) + '&' + // The custom app's Redirect URI
-		'scope=spark%3Amessages_write%20spark%3Arooms_read%20spark%3Amemberships_read%20spark%3Amessages_read%20spark%3Arooms_write%20spark%3Apeople_read%20spark%3Amemberships_write&' + // Requested permission, i.e. Spark room info
+		'scope=spark%3Amessages_write%20spark%3Arooms_read%20spark%3Ateams_read%20spark%3Amemberships_read%20spark%3Amessages_read%20spark%3Arooms_write%20spark%3Apeople_read%20spark%3Amemberships_write%20spark%3Ateams_write%20spark%3Ateam_memberships_read%20spark%3Ateam_memberships_write&' +
+		//'scope=spark%3Amessages_write%20spark%3Arooms_read%20spark%3Amemberships_read%20spark%3Amessages_read%20spark%3Arooms_write%20spark%3Apeople_read%20spark%3Amemberships_write&' + // Requested permission, i.e. Spark room info
 		// The following items are provided by the developer in the source code/config or generated dynamically at run time
 		'state=' + encodeURIComponent(randomString(63)) + '&' +	// Random string for OAuth2 nonce replay protection
 		'service=spark';

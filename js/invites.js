@@ -50,7 +50,7 @@ $('#createRoom').click(function(){
 			$('#progress').remove();
 			$('#step1b').remove();
 			$('#step2').show();
-			$('.container').prepend('<h3>Upload or input a list of contacts (500 names or less) to add to: ' + title + '</h3>');
+			$('.container').prepend('<h3>Upload or input a list of contacts (2000 names or less) to add to: ' + title + '</h3>');
 		};
 	});
 });
@@ -294,7 +294,7 @@ function parseContacts(csvData){
   	finalEmailNames = newEmails(results.validUsersList,RoomMembershipData);
   	console.log("returned finalEmailNames: ", finalEmailNames);
   	//truncate list
-  	finalEmailNames = finalEmailNames.splice(0, 950);
+  	finalEmailNames = finalEmailNames.splice(0, 2000);
   	
   	//display the valid new users
   	displayUserCount(finalEmailNames,results.invalidUsersList);

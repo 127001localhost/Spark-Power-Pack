@@ -11,7 +11,7 @@
 <div class="row">
     <a href="https://sparkpowerpack.com/invites.php"><div class="col-md-3"><center><i class="fa fa-plus-circle fa-3x" aria-hidden="true" style="color:#63B537" width="50"height="50"></i></center></div></a>
     <a href="https://sparkpowerpack.com/broadcast.php"><div class="col-md-3"><center><i class="fa fa-bullhorn fa-3x" aria-hidden="true" style="color:#1487CD" width="50"height="50"></i></center></div></a>
-    <a href"=<a href="https://sparkpowerpack.com/exodus.php"><div class="col-md-3"><center><i class="fa fa-minus-circle fa-3x" href="powerpack.php" aria-hidden="true" style="color:#9AD7F1" width="50" height="50"></i></center></div></a>
+    <a href="https://sparkpowerpack.com/exodus.php"><div class="col-md-3"><center><i class="fa fa-minus-circle fa-3x" href="powerpack.php" aria-hidden="true" style="color:#9AD7F1" width="50" height="50"></i></center></div></a>
     <a href="https://sparkpowerpack.com/jabberAlerts.php"><div class="col-md-3"><center><i class="fa fa-exclamation-circle fa-3x" aria-hidden="true" style="color:red"width="50" height="50"></i></center></div></a>
     <div class="col-md-3"><h5 class="text-center"><strong>Invites</strong><br><br><i>invite 100's of people <br> to a Spark room </div>
     <div class="col-md-3"><h5 class="text-center"><strong>Broadcasts</strong> <br><br><i>send a message to multiple <br> Spark rooms</div>

@@ -4,16 +4,21 @@
   <?= $header; ?>
   <div class="container">
     <div class="jumbotron" id="intro">
-      <h2>Welcome to the Spark Power Pack!</h2>
-      <p>We have created a collection of tools to enable repetitive tasks in bulk. Click Tools in the upper right to get started.</p>
-      <ul>
-        <li>Need to update multiple team rooms at the same time with an important message or an alert? Try <a href="broadcast.php">Broadcast</a></li>
-        <li>Need to create a room for a special event? <a href="invites.php">Invites</a> can be used to quickly create and add 100s of users to a room. </li>
-        <li>Been using Spark for a while? Use <a href="exodus.php">Exodus</a> to remove yourself and others from rooms in bulk.</li>
-        <li>Get the best of Jabber & Spark with <a href="jabberAlerts.php">Jabber Alerts</a>. Setup alerts to send a notification to Jabber when an important conversation in Cisco Spark is happening and quickly reply without leaving Jabber!</li>
-      </ul>
+      <h2>Spark Power Pack</h2>
+        <p>Using the Spark API's, we have created a collection of tools to enable repetitive tasks in bulk. </p>&nbsp;
 
-    </div>
+        <div class="row">
+            <a href="https://sparkpowerpack.com/invites.php"><div class="col-md-3"><center><i class="fa fa-plus-circle fa-3x" aria-hidden="true" style="color:#63B537" width="50"height="50"></i></center></div></a>
+            <a href="https://sparkpowerpack.com/broadcast.php"><div class="col-md-3"><center><i class="fa fa-bullhorn fa-3x" aria-hidden="true" style="color:#1487CD" width="50"height="50"></i></center></div></a>
+            <a href="https://sparkpowerpack.com/exodus.php"><div class="col-md-3"><center><i class="fa fa-minus-circle fa-3x" href="powerpack.php" aria-hidden="true" style="color:#9AD7F1" width="50" height="50"></i></center></div></a>
+            <a href="https://sparkpowerpack.com/jabberAlerts.php"><div class="col-md-3"><center><i class="fa fa-exclamation-circle fa-3x" aria-hidden="true" style="color:red"width="50" height="50"></i></center></div></a>
+            <div class="col-md-3"><h5 class="text-center"><strong>Invites</strong><br><br><i>invite 100's of people <br> to a Spark room </div>
+            <div class="col-md-3"><h5 class="text-center"><strong>Broadcasts</strong> <br><br><i>send a message to multiple <br> Spark rooms</div>
+            <div class="col-md-3"><h5 class="text-center"><strong>Exodus</strong><br><br><i>manage your Spark Room <br> memberships and the <br> users in them</div>
+            <div class="col-md-3"><h5 class="text-center"><strong>Jabber Alerts</strong><br><br><i>receive Spark messages <br> in Jabber</div>    
+        </div>
+        <p>
+  </div>
     <div class="text-center video">
     </div>
   </div>

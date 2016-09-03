@@ -5,7 +5,7 @@ $header = '
 <head>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/font-awesome.css">
+  <link rel="stylesheet" href="font-awesome/font-awesome-4.6.3 3/css/font-awesome.min.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
   <title>List Manager</title>
 </head>

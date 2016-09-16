@@ -24,7 +24,7 @@ $(document).on('click', '#joinSupport', function(e) {
   $.ajax({
     type: "POST",
     cache: false,
-    url: 'http://api.bdmcomputers.com:8080/support',
+    url: 'https://sparkpowerpack.com:8443/support',
     dataType: 'json',
     headers: { 'Content-Type': 'application/json' },
     data: JSON.stringify({'personEmail': personEmail})

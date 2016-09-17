@@ -86,8 +86,8 @@ function add(finalEmailNames){
 $.ajax({
     type: "POST",
     cache: false,
-    //url: 'https://sparkpowerpack.com:8443/inviteContacts',
-    url: 'http://52.2.160.149:8081/inviteContacts',
+    url: 'https://sparkpowerpack.com:8443/inviteContacts',
+    //url: 'http://52.2.160.149:8081/inviteContacts',
     dataType: 'json',
     headers: { 'Content-Type': 'application/json' },
     data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'roomName': selectedRoom.title, 'token': sparkToken, 'isLocked': selectedRoom.isLocked, 'teamId': selectedRoom.teamId, 'email': localStorage.getItem('myEmail')})

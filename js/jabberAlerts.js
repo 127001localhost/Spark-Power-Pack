@@ -4,6 +4,7 @@ var pageData = [];
 var selected = []; // array for tracking item selections when moving between pages 
 var sortMethod = {"id": "title"};
 var sortDir = 1; // Ascending
+var search = false;
 if (localStorage.getItem("max") === null) {
   var max = 10;
 }else{
@@ -36,7 +37,7 @@ function createHook(){
 	        data: JSON.stringify({name: selected[i].value, targetUrl: 'https://sparkpowerpack.com:8443/spark/'+myId, resource: 'messages', event: 'created', filter: 'roomId='+selected[i].id}),
 			statusCode: {
 				200: function(){
-					$(".container").html('<div class="jumbotron"><h2>Your Jabber Alerts have been created!</h2><p>In order to see these alerts in Jabber, follow these simple steps.<h4> Jabber for Mac & Windows:</h4> <ul><li> Mac: Open Jabber and click File -> New Custom Tab. Windows: Open Jabber and click File -> New -> Custom Tab.</li><li>"Create a new custom tab" will pop up. Provide a name for the tab (Spark Alerts). Copy and Paste the following in the page URL https://sparkpowerpack.com/jabberTab.php and click Create!</li><li>You will now see a new icon near the lower left of the Jabber screen. </li></ul><img src="images/tab3.jpg"></p><button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>');
+					$(".container").html('<div class="jumbotron"><h2>Your Jabber Alerts have been created!</h2><p>In order to see these alerts in Jabber, follow these simple steps.<h4> Jabber for Mac & Windows:</h4> <ul><li> Mac: Open Jabber and click File -> New Custom Tab. Windows: Open Jabber and click File -> New -> Custom Tab.</li><li>"Create a new custom tab" will pop up. Provide a name for the tab (Spark Alerts). Copy and Paste the following in the page URL http://spark.bdmcomputers.com/jabberTab.php and click Create!</li><li>You will now see a new icon near the lower left of the Jabber screen. </li></ul><img src="images/tab3.jpg"></p><button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button></div>');
 				}
 			}
 		});
@@ -56,7 +57,7 @@ function getHooks(){
 			}
 		}
 	}).done(function(data){
-		var alertUrl = "https://sparkpowerpack.com:8443/spark/";
+		var alertUrl = "http://api.bdmcomputers.com:8080/spark/";
 		var HTML= "<div class='row'><div class='col-md-6'><h2>Current Jabber Alerts</h2></div></div><div class='row'><div class='col-md-6'><table class='table table-striped' id='currentAlerts'><thead><th>Remove</th><th>Room Name</th></thead>";
 		if(data){
 			for(var alert in data['items']){
@@ -192,10 +193,8 @@ function perPage(){
 function pagination(max){
 	$("#progress").remove();
 	//setup page navigation
-	var HTML = "<div class='row'><div class='col-md-6'><h2>Select rooms to receive alerts on</h2></div></div>";
+	var HTML = "<div class='row'><div class='col-md-12'><h2>Select rooms to receive alerts on</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="3" maxlength="3" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
-	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
@@ -206,7 +205,7 @@ function pagination(max){
 		var numPages = (totalRooms / max);
 	}
 
-	var HTML = '<nav style="display: inline-block;"><ul class="pagination">';
+	var HTML = '<div class="row"><div class="col-md-12"><nav style="display: inline-block;"><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;
@@ -222,8 +221,12 @@ function pagination(max){
 		
 	}
 
-	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
-	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div><div>';
+	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></li>&nbsp;&nbsp;<span><input type="text" placeholder=10 size="3" maxlength="3" id="max">&nbsp;<button class="btn btn-normal btn-sm" id="perPage" type="button" onClick=\'perPage()\'>Per/Page</button></span></nav></div></div>';
+	if(!search){
+		HTML += '<div class="row"><div class="col-md-6"><div class="input-group" id="search"><input type="text" class="form-control" id="searchString" placeholder="Room Name"><div class="input-group-addon" id="liveSearch"><i class="glyphicon glyphicon-search"></i></div></div></div></div>';
+	}else{
+		HTML += '<div class="row"><div class="col-md-6"><div id="clearSearch"><button class="btn btn-warning btn-sm">Clear Search</button></div></div></div>';
+	}
 	$(".container").append(HTML);
 
 	// set Max per/page placeholder
@@ -279,7 +282,7 @@ $(document).on('click', 'th a', function() {
 function roomDisplay(start,stop){
 	checkSelected();
 
-	var table = '<div class="row" id="roomList"><div class="col-md-6"><table class="table table-striped" id="roomTable"><thead><th>Add</th><th>Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th></thead>';
+	var table = '<div class="row" id="roomList"><div class="col-md-6"><table class="table table-striped" id="roomTable"><thead><th></th><th>Room Name <a class="glyphicon glyphicon-sort" id="title"></a></th></thead>';
 
 	var data = pageData;
 	for(var i = start; i <= stop; i++){

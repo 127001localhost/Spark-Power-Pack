@@ -7,11 +7,12 @@ var sortMethod = {"id": "created"};
 var sortDir = 1; // Ascending
 var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
+var search = false;
 if (localStorage.getItem("max") === null) {
   var max = 10;
 }else{
 	var max = parseInt(localStorage.getItem("max"));
-};
+}
 
 $("#listRooms").on("click", function(){
 	$("#intro").remove();
@@ -23,7 +24,7 @@ $("#listRooms").on("click", function(){
 function sendSelected(){
 	message = $("#myMessage").val();
 	var filename = $("#file")[0].files[0];
-	for(i in selected){
+	for(var i in selected){
 		sendMessage(selected[i].id,message,filename);
 	}
 }
@@ -59,7 +60,7 @@ function sendMessage(roomId,theMessage,filename){
 	  "headers": {
 	    "authorization": sparkToken
 	  }
-	}
+	};
 
 	$.ajax(settings).done(function (response) {
 	  console.log(response);
@@ -191,10 +192,8 @@ function perPage(){
 function pagination(max){
 	$("#progress").remove();
 	//setup page navigation
-	var HTML = "<div class='row'><div class='col-md-6'><h2>Select the rooms you want to broadcast to</h2></div></div>";
+	var HTML = "<div class='row'><div class='col-md-12'><h2>Select the rooms you want to broadcast to</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="3" maxlength="3" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
-	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
@@ -205,7 +204,7 @@ function pagination(max){
 		var numPages = (totalRooms / max);
 	}
 
-	var HTML = '<nav style="display: inline-block;"><ul class="pagination">';
+	var HTML = '<div class="row"><div class="col-md-12"><nav style="display: inline-block;"><ul class="pagination">';
 	for(var i = 0; i < numPages; i++){
 		var start = i * max;
 		var stop = start + max-1;
@@ -221,11 +220,16 @@ function pagination(max){
 		
 	}
 
-	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
-	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div><div>';
-	$(".container").append(HTML);
+	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></li>&nbsp;&nbsp;<span><input type="text" placeholder=10 size="3" maxlength="3" id="max">&nbsp;<button class="btn btn-normal btn-sm" id="perPage" type="button" onClick=\'perPage()\'>Per/Page</button></span></nav></div></div>';
+	
+	if(!search){
+		HTML += '<div class="row"><div class="col-md-6"><div class="input-group" id="search"><input type="text" class="form-control" id="searchString" placeholder="Room Name"><div class="input-group-addon" id="liveSearch"><i class="glyphicon glyphicon-search"></i></div></div></div></div>';
+	}else{
+		HTML += '<div class="row"><div class="col-md-6"><div id="clearSearch"><button class="btn btn-warning btn-sm">Clear Search</button></div></div></div>';
+	}
 
-	// set Max per/page placeholder
+	// insert HTML into container
+	$(".container").append(HTML);
 	$("#max").attr("placeholder", max);
 	
 	roomDisplay(0,max-1);

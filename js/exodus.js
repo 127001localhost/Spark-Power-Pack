@@ -7,6 +7,7 @@ var sortDir = 1; // Ascending
 var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
 var results = [];
+var search = false;
 if (localStorage.getItem("max") === null) {
   var max = 10;
 }else{
@@ -27,19 +28,16 @@ $(document.body).on('change', '#rooms' ,function(){
   	getUsers(myRoomTitles[i].id,myRoomTitles[i].title);
   });
 
-function getMembershipId(roomId, personId, num){
-	$.ajax({
+function getMembershipId(roomId, personId){
+	return $.ajax({
 		url: "https://api.ciscospark.com/v1/memberships?roomId="+roomId+"&personId="+personId,
 		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
 		cache: false,
 		method: "GET"
-	}).done(function(data){
-		//console.log(data);
-		leaveRoom(data.items[0].id, num, roomId);
 	});
 }
 
-function leaveRoom(membershipId, num, roomId){
+function leaveRoom(membershipId, roomId){
 	$.ajax({
 		url: "https://api.ciscospark.com/v1/memberships/"+membershipId,
 		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
@@ -53,16 +51,21 @@ function leaveRoom(membershipId, num, roomId){
 			403: function(){
 				results.push({"roomId": roomId, "status": "failed"});
 				displayResults();
+			},
+			409: function(){
+				results.push({"roomId": roomId, "status": "failed"});
+				displayResults();
 			}
 		}
 	});
+}	
 
-	function displayResults(){
-	if(results.length == selected.length){
+function displayResults(){
+	if(selected.length === results.length){
 		var HTML = '<div class="jumbotron"><h2>Exodus Results:</h2>';
 		for(var i = 0; i < selected.length; i++){
 			var thisId = selected[i].id;
-			for(index in results){
+			for(var index in results){
 				if (thisId == results[index].roomId){
 					if(results[index].status == "success"){
 						HTML += "<p><i class='glyphicon glyphicon-ok text-success'></i> "+selected[i].value+" was removed successfully.</p>";
@@ -77,17 +80,20 @@ function leaveRoom(membershipId, num, roomId){
 	}
 }
 
-}	
-
 function leaveSelected(){
+	$(".container").html('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Leaving Rooms...</h3></div></div>');
 	for(var i = 0; i < selected.length; i++){
-		// clean up locate data
-		for(j in pageData){
+		// clean up cached data
+		for(var j in pageData){
 			if (selected[i].id == pageData[j].id){
 				pageData.splice(j, 1);
 			}
 		}
-		getMembershipId(selected[i].id, localStorage.getItem("myId"), (i+1));
+		getMembershipId(selected[i].id, localStorage.getItem("myId"))
+		.then(function(membership){
+			leaveRoom(membership.items[0].id, membership.items[0].roomId);
+		});
+		
 	}
 	localStorage.setItem("roomList", JSON.stringify(pageData));
 }
@@ -96,12 +102,12 @@ function leaveSelected(){
 function reviewSelected(){
 	checkSelected(); // check to see what is selected
 	
-	var HTML = '<div class="row" id="confirm"><div class="col-md-6"><h2>Are you sure you wish to leave the following rooms?</h2>';
+	var HTML = '<div class="jumbotron"><h2>Are you sure you wish to leave the following rooms?</h2>';
 	
 	for(var i = 0; i < selected.length; i++){
-		HTML += "<p>"+selected[i].value+"</p>";
-	};
-	HTML += '<button class="btn btn-danger has-spinner" id="leave" type="button" onClick="leaveSelected()">Leave Rooms <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button>  <button class="btn btn-normal has-spinner" id="cancel" type="button" onClick="startOver()">Cancel <span class="spinner"><i class="icon-spin icon-refresh"></i></span></button></div></div>';
+		HTML += "<p><i class='glyphicon glyphicon-remove text-danger' style='syle: red;'></i> "+selected[i].value+"</p>";
+	}
+	HTML += '<button class="btn btn-danger has-spinner" id="leave" type="button" onClick="leaveSelected()">Leave Rooms</button>  <button class="btn btn-normal" id="cancel" type="button" onClick="startOver()">Cancel</button></div>';
 
 	$(".container").html(HTML);
 	console.log(selected);
@@ -120,10 +126,10 @@ function listRooms(next,url){
 		pageData = JSON.parse(localStorage.getItem("roomList"));
 		var exodusData = [];
 		for(var i = 0; i < pageData.length; i++){
-			if(pageData[i].type != "direct"){
+			if(pageData[i].type != "direct" && (typeof pageData[i].teamId === 'undefined')){
 				exodusData.push(pageData[i]);
-			};
-		};
+			}
+		}
 		// remove 1:1 rooms for list for Exodus
 		pageData = exodusData;
 
@@ -145,8 +151,7 @@ function listRooms(next,url){
 			statusCode: {
 				502: function(){
 					$("#roomButton").hide();
-					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
-
+					$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>");
 				}
 			}
 		}).done(function(data, status, xhr){
@@ -173,10 +178,10 @@ function listRooms(next,url){
 				// remove 1:1 rooms for list for Exodus
 				var exodusData = [];
 				for(var i = 0; i < pageData.length; i++){
-					if(pageData[i].type != "direct"){
+					if(pageData[i].type != "direct" && (typeof pageData[i].teamId === 'undefined')){
 						exodusData.push(pageData[i]);
-					};
-				};
+					}
+				}
 				pageData = exodusData;
 
 				// call the pagiation script
@@ -223,7 +228,7 @@ function sortBy(srtValue, srtOrder){
 	pageData = sortObjectBy(pageData,srtValue,srtOrder);
 	checkSelected();
 	pagination(max);
-}
+}	
 
 function perPage(){
 	checkSelected();
@@ -242,10 +247,8 @@ function perPage(){
 function pagination(max){
 	$("#progress").remove();
 	//setup page navigation
-	var HTML = "<div class='row'><div class='col-md-6'><h2>Select the rooms you want to leave</h2></div></div>";
+	var HTML = "<div class='row'><div class='col-md-12'><h2>Select the rooms you want to leave</h2></div></div>";
 	$(".container").html(HTML);
-	var pageNav = '<div class="row"><div class="col-md-6"><span>Rooms per/page: <input type="text" placeholder=10 size="3" maxlength="3" id="max"> <button class="btn btn-normal" id="perPage" type="button" onClick=\'perPage()\'>Update</button></span></div><div>';
-	$(".container").append(pageNav);	
 
 	var totalRooms = pageData.length;
 	//console.log(totalRooms);
@@ -272,9 +275,13 @@ function pagination(max){
 		}
 		
 	}
+	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></li>&nbsp;&nbsp;<span><input type="text" placeholder=10 size="3" maxlength="3" id="max">&nbsp;<button class="btn btn-normal btn-sm" id="perPage" type="button" onClick=\'perPage()\'>Per/Page</button></span></nav></div></div>';
+	if(!search){
+		HTML += '<div class="row"><div class="col-md-6"><div class="input-group" id="search"><input type="text" class="form-control" id="searchString" placeholder="Room Name"><div class="input-group-addon" id="liveSearch"><i class="glyphicon glyphicon-search"></i></div></div></div></div>';
+	}else{
+		HTML += '<div class="row"><div class="col-md-6"><div id="clearSearch"><button class="btn btn-warning btn-sm">Clear Search</button></div></div></div>';
+	}
 
-	//HTML += '<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
-	HTML += '<li><a onClick=\'refreshRooms()\'><i class="glyphicon glyphicon-refresh"></i></a></span></li></ul><i class="label label-warning cached">Missing a room? Refresh your rooms with button to the left.</i></nav></div></div>';
 	$(".container").append(HTML);
 
 	// set Max per/page placeholder
@@ -336,10 +343,10 @@ function roomDisplay(start,stop){
 		if(checked){
 			console.log("no selections have been made yet");
 
-			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'" checked><td>'+data[i].title+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr>';
+			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'" checked><td class="name">'+data[i].title+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr><div class="preview active" style="display:none">Preview</div>';
 			checked = false;
 		}else{
-			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'"><td>'+data[i].title+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr>';
+			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'"><td class="name">'+data[i].title+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr><tr class="preview active" style="display:none"><td colspan="4">Fetching last 4 messages</</td></tr>';
 		}
 		
 	}
@@ -605,12 +612,38 @@ function roomsClickOthers(){
 
 }
 
-
-
-
 function startOver(){
 	selected = [];
 	myRooms = [];
 	location.reload();
-
 }
+
+$(document).on('click', 'tr.preview.active', function(e){
+	$(this).hide();
+});
+
+$(document).on('click', '#roomTable > tbody > tr > td.name', function(e){
+	e.preventDefault();
+	var id = $(this).parent().find("input").attr("id");
+	var preview = $(this).parent().next(".preview");
+	preview.show();
+	console.log(preview);
+	// pull last 4 messages
+		$.ajax({
+			url: 'https://api.ciscospark.com/v1/messages?roomId='+id+'&max=4',
+			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+			cache: false,
+			method: "GET"
+		}).done($.proxy(function(result){
+			if(result.items.length === 0){
+				preview.html('<td colspan="4">This room is empty</td>');
+			}else{
+				var msgPreview = "";
+				for(var i = 0; i < result.items.length; i++){
+					console.log(result.items[i].text);
+					msgPreview += result.items[i].personEmail +' > '+result.items[i].text+ '<br>';
+				}
+				preview.html('<td colspan="4">'+msgPreview+'</td>');
+			}
+		}, this));
+});

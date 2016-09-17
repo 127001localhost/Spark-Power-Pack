@@ -9,10 +9,10 @@ if(localStorage.getItem("sparkToken") && currentTime < expiresIn){
 		$("#profile").append("<img class=\"user dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" src=\""+localStorage.getItem("myAvatar")+"\">");
 	}else{
 		var displayName = localStorage.getItem("displayName");
-		var initial = displayName[0].toUpperCase()
+		var initial = displayName[0].toUpperCase();
 		$("#profile").append('<div class="user-text dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><p>'+initial+'</p></div>');
 		console.log("no avatar");
-	};
+	}
 
 }else{
 	window.location="index.html";
@@ -77,12 +77,43 @@ function handleError(error){
 		HTML += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
 	  HTML += displayError+'</div>';
 	
-	if($('#alert').length == 0) {
+	if($('#alert').length === 0) {
 		$('.container').prepend(HTML);
 	}else{
 		$('#alert').remove();
 		$('.container').prepend(HTML);
-	};
+	}
 
 	return cont;
-};
+}
+
+// Live Search
+$(document).on('click', '#liveSearch', function(e){
+  e.preventDefault();
+  var searchString = $('#searchString').val();
+  search = true;
+
+	searchString = searchString.toLowerCase();
+	console.log(searchString);
+	var tempData = [];
+	for(var i = 0; i < pageData.length; i++){
+		var room = pageData[i].title;
+		room = room.toLowerCase();
+		if(room.indexOf(searchString) >= 0){
+			tempData.push(pageData[i]);
+		}
+	}
+	// recreate page data
+	pageData = [];
+	pageData = tempData;
+	perPage();
+});
+
+$(document).on('click', '#clearSearch', function(e){
+	checkSelected();
+	search = false;
+	max = parseInt(localStorage.getItem("max"));
+	pageData = [];
+	pageData = JSON.parse(localStorage.getItem("roomList"));
+	listRooms();
+});

@@ -50,7 +50,7 @@ $('#createRoom').click(function(){
 			$('#progress').remove();
 			$('#step1b').remove();
 			$('#step2').show();
-			$('.container').prepend('<h3>Upload or input a list of contacts (2000 names or less) to add to: ' + title + '</h3>');
+			$('.container').prepend('<h3>Upload or input a list of contacts (1000 names or less) to add to: ' + title + '</h3>');
 		};
 	});
 });
@@ -86,44 +86,24 @@ function add(finalEmailNames){
 $.ajax({
     type: "POST",
     cache: false,
-    url: 'https://sparkpowerpack.com:8443/inviteContacts',
+    //url: 'https://sparkpowerpack.com:8443/inviteContacts',
+    url: 'http://52.2.160.149:8081/inviteContacts',
     dataType: 'json',
     headers: { 'Content-Type': 'application/json' },
-    data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'token': sparkToken, 'isLocked': selectedRoom.isLocked, 'teamId': selectedRoom.teamId, 'email': localStorage.getItem('myEmail')})
+    data: JSON.stringify({'inviteList': finalEmailNames, 'roomId': selectedRoom.id, 'roomName': selectedRoom.title, 'token': sparkToken, 'isLocked': selectedRoom.isLocked, 'teamId': selectedRoom.teamId, 'email': localStorage.getItem('myEmail')})
   }).done(function(data){
+
   	console.log(data);
   	if(data.success){
-      var successList;
-      var arr = data.successTracker;
-      for(var i = 0; i < arr.length; i++){
-        if(i == 0){
-          successList = arr[i];
-        }else{
-          successList += ", "+arr[i];
-        };
-      };
-
-      // Display results to user
-      $('.container').empty();
-      if(arr.length > 0){
-    	 $('.container').append('<h3 style="color: green;">The following contacts were added successfully:</h3><h4>'+successList+'</h4><p>');
-      };
-      // Display errors if present
-      var errors = data.errors;
-      var errorList;
-      if(errors.length > 0){
-        $('.container').append('<h3 style="color: red;">We ran into the following errors:</h3><p>');
-        for(var i = 0; i < errors.length; i++){
-            $('.container').append('<h4>'+errors[i]+'</h4><p>');
-        };
-      };
+    	 $('.container').html('<h3 style="color: green;">'+data.success+'</h4><p>');
+    }
       $('.container').append('<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>');
-  	};
   });
-};
+}
 
 $(document).on('click', '#addContacts', function(e){
 	e.preventDefault();
+  $('.footer').remove();
 	add(finalEmailNames);
 });
 
@@ -293,8 +273,6 @@ function parseContacts(csvData){
   	console.log(RoomMembershipData);
   	finalEmailNames = newEmails(results.validUsersList,RoomMembershipData);
   	console.log("returned finalEmailNames: ", finalEmailNames);
-  	//truncate list
-  	finalEmailNames = finalEmailNames.splice(0, 2000);
   	
   	//display the valid new users
   	displayUserCount(finalEmailNames,results.invalidUsersList);
@@ -346,7 +324,7 @@ function validEmail(usersList,roomOwner){
 		}
 	return {validUsersList: validUsersList,
 			invalidUsersList: invalidUsersList};
-};
+}
 
 
 function displayUserCount(myemails,invalidUsersList) {
@@ -360,15 +338,15 @@ function displayUserCount(myemails,invalidUsersList) {
 			HTML += "<tr><td>"+myemails[i].personEmail+"</td></tr>";
 		};
 		HTML += "</table>";
-		HTML += "<button id=\"addContacts\" class=\"btn btn-success\" type=\"button\">Add Contacts</button>   ";
-		HTML += '<button class="btn btn-normal" type="button" onClick="startOver()">Cancel</button>';
+		var FOOTER = '<footer class="footer"><div"><button id=\"addContacts\" class=\"btn btn-success\" type=\"button\">Add Contacts</button>   ';
+		FOOTER += '<button class="btn btn-normal" type="button" onClick="startOver()">Cancel</button></div></footer>';
 	};
 
 	$("#step2").hide();
 	$('.container > h3').remove();
 	$('#validatedContacts').show();
 	$( "#validatedContacts" ).html(HTML);
-	
+	$('body').append(FOOTER);
 }
 
 //compare new list of users with existing users and return only new users.

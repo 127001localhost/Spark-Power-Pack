@@ -57,7 +57,7 @@
         <p><tab>Using the Spark APIs, we have created a collection of tools to enable repetitive tasks in bulk. </p>&nbsp;
 
         <div class="row">
-            <a href="invites.php"><div class="col-md-3"><center><div class="fa fa-plus-circle fa-3x" aria-hidden="true" style="color:#63B537" width="50"height="50"></div></center></a><h5 class="text-center"><strong>Invites</strong><br><br><i>invite 100's of people <br> to a Spark room</i></div>
+            <a href="invites.php"><div class="col-md-3"><center><div class="fa fa-plus-circle fa-3x" aria-hidden="true" style="color:#63B537" width="50"height="50"></div></center></a><h5 class="text-center"><strong>Invites</strong><br><br><i>invite 100s of people <br> to a Spark room</i></div>
             <a href="broadcast.php"><div class="col-md-3"><center><div class="fa fa-bullhorn fa-3x" aria-hidden="true" style="color:#1487CD" width="50"height="50"></div></center></a><h5 class="text-center"><strong>Broadcasts</strong> <br><br><i>send a message to multiple <br> Spark rooms</i></div>
             <a href="exodus.php"><div class="col-md-3"><center><div class="fa fa-minus-circle fa-3x" aria-hidden="true" style="color:#9AD7F1" width="50" height="50"></div></center></a><h5 class="text-center"><strong>Exodus</strong><br><br><i>manage your Spark Room <br> memberships and the <br> users in them</i></div>
             <a href="jabberAlerts.php"><div class="col-md-3"><center><div class="fa fa-exclamation-circle fa-3x" aria-hidden="true" style="color:red"width="50" height="50"></div></center></a><h5 class="text-center"><strong>Jabber Alerts</strong><br><br><i>receive Spark messages <br> in Jabber</i></div> 

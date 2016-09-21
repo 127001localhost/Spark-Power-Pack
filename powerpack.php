@@ -54,7 +54,7 @@
   <div class="container">
     <div class="jumbotron" id="intro">
       <h2>Spark Power Pack</h2>
-        <p><tab>Using the Spark API's, we have created a collection of tools to enable repetitive tasks in bulk. </p>&nbsp;
+        <p><tab>Using the Spark APIs, we have created a collection of tools to enable repetitive tasks in bulk. </p>&nbsp;
 
         <div class="row">
             <a href="invites.php"><div class="col-md-3"><center><div class="fa fa-plus-circle fa-3x" aria-hidden="true" style="color:#63B537" width="50"height="50"></div></center></a><h5 class="text-center"><strong>Invites</strong><br><br><i>invite 100's of people <br> to a Spark room</i></div>

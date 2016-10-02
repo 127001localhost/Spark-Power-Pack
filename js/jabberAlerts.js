@@ -57,7 +57,8 @@ function getHooks(){
 			}
 		}
 	}).done(function(data){
-		var alertUrl = "http://api.bdmcomputers.com:8080/spark/";
+		console.log(data);
+		var alertUrl = "/spark/";
 		var HTML= "<div class='row'><div class='col-md-6'><h2>Current Jabber Alerts</h2></div></div><div class='row'><div class='col-md-6'><table class='table table-striped' id='currentAlerts'><thead><th>Remove</th><th>Room Name</th></thead>";
 		if(data){
 			for(var alert in data['items']){

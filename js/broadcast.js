@@ -8,6 +8,8 @@ var sortDir = 1; // Ascending
 var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
 var search = false;
+var filter = {direct: ""};
+
 if (localStorage.getItem("max") === null) {
   var max = 10;
 }else{
@@ -44,7 +46,7 @@ function getMembershipId(roomId){
 function sendMessage(roomId,theMessage,filename){
 	var form = new FormData();
 	form.append("roomId", roomId);
-	form.append("text", theMessage);
+	form.append("markdown", theMessage);
 	form.append("files", filename);
 
 	var settings = {
@@ -82,6 +84,19 @@ function listRooms(next,url){
 	// check for cached data
 	if (localStorage.getItem("roomList")){
 		pageData = JSON.parse(localStorage.getItem("roomList"));
+
+		//Check filter options
+		var broadcastData = [];
+		if(filter.direct !== "checked"){
+			for(var i = 0; i < pageData.length; i++){
+				if(pageData[i].type != "direct"){
+					broadcastData.push(pageData[i]);
+				}
+			}
+			// remove filtered for list for Exodus
+			pageData = broadcastData;
+		}
+
 		page = localStorage.getItem("page");
 		pagination(max);
 	}else{
@@ -228,6 +243,7 @@ function pagination(max){
 		HTML += '<div class="row"><div class="col-md-6"><div id="clearSearch"><button class="btn btn-warning btn-sm">Clear Search</button></div></div></div>';
 	}
 
+	HTML += '<div class="row"><br><div class="col-md-12"><div class="form-group"><div class="col-md-4"> <label class="checkbox-inline" for="direct"> <input type="checkbox" name="direct" id="direct" value="direct" '+filter.direct+'> Show 1:1</div> </div></div></div> ';
 	// insert HTML into container
 	$(".container").append(HTML);
 	$("#max").attr("placeholder", max);
@@ -255,13 +271,14 @@ function roomDisplay(start,stop){
 
 		var created = new Date(data[i].created);
 		var activity = new Date(data[i].lastActivity);
+		var nameDisplay = typeof data[i].teamId === "undefined" ? data[i].title : data[i].title + ' <i class="fa fa-users" aria-hidden="true"></i>';
 		if(checked){
 			console.log("no selections have been made yet");
 
-			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'" checked><td>'+data[i].title+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr>';
+			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'" checked><td>'+nameDisplay+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr>';
 			checked = false;
 		}else{
-			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'"><td>'+data[i].title+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr>';
+			table += '<tr><td><input type="checkbox" name="checkboxes" id="'+data[i].id+'" value="'+data[i].title+'"><td>'+nameDisplay+'</td><td>'+created.toLocaleString()+'</td><td>'+activity.toLocaleString()+'</td><td></tr>';
 		}
 		
 	}
@@ -291,6 +308,15 @@ $(document).on('click', 'th a', function() {
 	}
 });
 
+$(document).on('change', '#direct, #team', function(e){
+	if($("#direct").prop('checked')){
+		filter.direct = "checked";
+	}else{
+		filter.direct = "";
+	}	
+	listRooms();
+});
+
 function checkSelected(){
 		$("input:not(:checked)").each(function(){
 		if(selected.length >= 1){
@@ -307,12 +333,12 @@ function checkSelected(){
 		if(selected.length > 0){
 			for(var i = 0; i < selected.length; i++){
 				if(selected[i].id == this.id){
-					addItem = false
+					addItem = false;
 				}	
 			}
 		}
 
-		if(addItem){
+		if(addItem && this.id !== "direct"){
 			selected.push(this);
 		}
 	});
@@ -326,7 +352,7 @@ function reviewSelected(){
 	for(index in selected){
 		HTML += "<p>"+selected[index].value+"</p>";
 	};
-	HTML += '<div class="row" id="confirm"><form id="bcastData" method="post" enctype="multipart/form-data"><textarea cols="100" rows="5" id="myMessage" name="message" placeholder="Type your message here" ></textarea><input type="file" name="file" id="file" /></br><button class="btn btn-success" type="submit">Send Message</button><button class="btn btn-warning" id="cancel" type="button" onClick="startOver()">Cancel</button></form></div>';
+	HTML += '<div class="row" id="confirm"><div class="col-md-8"><form id="bcastData" method="post" enctype="multipart/form-data"><textarea class="form-control" style="min-width: 100%" rows="5" id="myMessage" name="message" placeholder="Type your message here" ></textarea><input type="file" name="file" id="file" /></br><button class="btn btn-success" type="submit">Send Message</button><button class="btn btn-warning" id="cancel" type="button" onClick="startOver()">Cancel</button></form></div><div class="col-span-4"><h4>Broadcase now supports markdown. <a href="https://developer.ciscospark.com/formatting-messages.html" target="_blank">Click here</a> for formattting info.</h4></div>';
 	$(".container").html(HTML);
 }
 $(document).on('submit', 'form#bcastData', function(e) {

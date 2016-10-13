@@ -6,10 +6,10 @@
 		<div class="jumbotron" id="intro">
 			<h2>Exodus:</h2>
 			<p>Remove yourself from multiple rooms at one time!<p>
-			<button class="btn btn-warning has-spinner" id="listRooms" type="button">List Rooms</button>
+			<button class="btn btn-warning" id="listRooms" type="button">List Rooms</button>
 
 			<p>Remove mutiple users from a room at one time!<p>
-			<button class="btn btn-warning has-spinner" id="listRoomsOthers" value="removeOthers" type="button" onClick="roomsClickOthers()">List Rooms</button>
+			<button class="btn btn-warning" id="exodusUsers" value="removeOthers" type="button">List Rooms</button>
 		</div>
 	</div>
 

@@ -90,7 +90,17 @@ function handleError(error){
 // Live Search
 $(document).on('click', '#liveSearch', function(e){
   e.preventDefault();
-  var searchString = $('#searchString').val();
+  liveSearch();
+});
+
+$(document).on('keypress', '#search', function(e){
+  if(e.which === 13){
+  	liveSearch();
+  }
+});
+
+var liveSearch = function(e){
+	var searchString = $('#searchString').val();
   search = true;
 
 	searchString = searchString.toLowerCase();
@@ -107,7 +117,7 @@ $(document).on('click', '#liveSearch', function(e){
 	pageData = [];
 	pageData = tempData;
 	perPage();
-});
+}
 
 $(document).on('click', '#clearSearch', function(e){
 	checkSelected();

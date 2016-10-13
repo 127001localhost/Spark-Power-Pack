@@ -51,7 +51,7 @@ $('#createRoom').click(function(){
 			$('#step1b').remove();
 			$('#step2').show();
 			$('.container').prepend('<h3>Upload or input a list of contacts (1000 names or less) to add to: ' + title + '</h3>');
-		};
+		}
 	});
 });
 
@@ -125,27 +125,32 @@ function roomDisplay(){
       dfd.done(function(response){
         if(response.results[0].isModerator){
           roomsImod.push(response.results[0].roomId);
-        };
+        }
       });
       deferreds.push(dfd);
 
     }else if(pageData[i].type != "direct" && pageData[i].isLocked == false){
       invitesPageData.push(pageData[i]);
-    };
+    }
 	}
   $.when.apply(null, deferreds).done( function () {
    $.each(roomsImod, function(i, v) {
     for(var i = 0; i < pageData.length; i++){
       if(pageData[i].id == v){
         invitesPageData.push(pageData[i]);
-      };
-    };
+      }
+    }
    });
   })
   .then(function(){
     pageData = sortObjectBy(invitesPageData, "title", "A");
     for(var i = 0; i < pageData.length; i++){
-      $("#rooms").append("<option value="+i+">"+pageData[i].title+"</option>");
+      if(typeof pageData[i].teamId !== "undefined"){
+        $("#rooms").append('<option value='+i+'>'+pageData[i].title+' (*** Team ***)</option>');
+      }else{
+        $("#rooms").append("<option value="+i+">"+pageData[i].title+"</option>");
+      }
+
     }
     $("#progress").remove();
     $("#step1a").show();

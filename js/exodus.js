@@ -8,25 +8,18 @@ var url = "https://api.ciscospark.com/v1/rooms";
 var next = "";
 var results = [];
 var search = false;
+
 if (localStorage.getItem("max") === null) {
   var max = 10;
 }else{
 	var max = parseInt(localStorage.getItem("max"));
-};
+}
 
 $("#listRooms").on('click', function(){
 	$("#intro").remove();
 	$(".container").append('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Loading Data...</h3></div></div>');
 	listRooms(next, url); // list my rooms
 });
-
-$(document.body).on('change', '#rooms' ,function(){
-    var i = $("#rooms").val();
-    console.log("myRoom Info is: ", myRoomTitles[i]);
-    selectedRoom = myRoomTitles[i];
-	//$("#dvImportSegments").prepend("<h3>Upload a list of contacts to add to the "+myRooms[i].title+" room.</h3>");
-  	getUsers(myRoomTitles[i].id,myRoomTitles[i].title);
-  });
 
 function getMembershipId(roomId, personId){
 	return $.ajax({
@@ -84,6 +77,7 @@ function leaveSelected(){
 	$(".container").html('<div class="row" id="progress"><div class="col-md-12 text-center"><img src="images/progress-ring.gif"><h3>Leaving Rooms...</h3></div></div>');
 	for(var i = 0; i < selected.length; i++){
 		// clean up cached data
+    pageData = JSON.parse(localStorage.getItem("roomList"));
 		for(var j in pageData){
 			if (selected[i].id == pageData[j].id){
 				pageData.splice(j, 1);
@@ -384,233 +378,246 @@ function checkSelected(){
 	});
 }
 
+/////////////////////////////////////////////
+// remove users from a moderated room in bulk
+/////////////////////////////////////////////
+var exodusUsers = {
+	moderatedRooms: [],
+	removeList: [],
+	existingBots: [],
 
-function getUsers(roomId,roomTitle){
-	console.log("Your selected RoomId is: ", roomId);
-	$.ajax({
-		url: "https://api.ciscospark.com/v1/memberships?roomId="+roomId,
-		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-		cache: false,
-		method: "GET"
-	}).done(function(data){
-		console.log("got Users: ",data);
-		var usersList = [];
-		var name = "";
-		var id = "";
-		var email = "";
-		var user = {};
-		console.log("length of data: ", data['items'].length);
-		var yourself = localStorage.getItem("myEmail");
-		console.log("yourself",yourself);
-		for (var i = 0; i< data['items'].length; i++){
-			console.log("do I make it in here?");
-			name = data['items'][i].personDisplayName;
-			id = data['items'][i].id;
-			email = data['items'][i].personEmail;
-			user = {name: name, email: email, id: id};
-
-			//Only push the contact if their email does not contain "bot@" which would indicate this is not a regular user, but a bot such as Cisco Security bot monitoring the room	
-			if (email.indexOf("bot@") ==-1){
-				if (email != yourself){
-					usersList.push(user);
-				}//if (email != yourself)
-			}//(email.indexOf("bot@") ==-1)
-
-		} //for (var i = 0; i< data.length; i++)
-		console.log("UsersList from the room before sorting is: ", usersList);
-		usersList = sortObjectBy(usersList,"name","D");
-		console.log("UsersList from the room after sorting is: ", usersList);
-		displayUsers(usersList,roomTitle);
-	});
-}
-
-function displayUsers(usersList,roomTitle){
-
-	var HTML = "<div class=\"row\"><div class=\"col-md-6\"><h3>Select Users to Remove from "+roomTitle+" Room</h3>";
-	HTML += '<table class="table table-striped" id="roomList"><thead><th><label><input type="checkbox" id="checkAll"/></lable></th><th>Name</th><th>Email</th></thead>';
-	var removeUsers = {};
-	for (var i = 0; i < usersList.length ; i++){
-		removeUsers = {name: usersList[i].name, id: usersList[i].id};
-		//HTML += "<tr><td><input type=\"checkbox\" name=\"checkboxes\" id=\"users\""+i+" value=\""+usersList[i].id+"\"><td>"+usersList[i].name+"</td><td>"+usersList[i].email+"</td></tr>";
-		HTML += "<tr><td><input type=\"checkbox\" name=\""+usersList[i].name+"\" id=\"users\""+i+" value=\""+usersList[i].id+"\"><td>"+usersList[i].name+"</td><td>"+usersList[i].email+"</td></tr>";
-
-	} //for (var i = 0; i < usersList.length ; i++)
-		
-	//HTML += '</table><button class="btn btn-danger" id="leave" type="button" onClick="reviewSelectedUsers()">Remove Users</button>  <button class="btn btn-normal" type="button" onClick=\'window.location="delete.php"\'>Cancel</button></div></div>';
-	HTML += "</table><button class=\"btn btn-danger\" id=\"leave\" type=\"button\" onClick=\'reviewSelectedUsers(\""+roomTitle+"\")'>Remove Users</button>  <button class=\"btn btn-normal\" type=\"button\" onClick=\'window.location=\"exodus.php\"\'>Cancel</button></div></div>";
-
-	$(".container").html(HTML);
-
-	$("#checkAll").change(function () {
-    $("input:checkbox").prop('checked', $(this).prop("checked"));
-		});
-
-	console.log("HTML: ",HTML);
-
-}
-
-function reviewSelectedUsers(roomTitle){
-	console.log("DId I pass roomTitle properly?", roomTitle);
-	// record any selected
-	$("input:checked").each(function(){
-		selected.push(this);
-	});
-	console.log("selected users: ", selected);
-	var HTML = "<div class=\"row\" id=\"confirm\"><div class=\"col-md-6\"><h3>Are you sure you want to remove these users from "+roomTitle+"</h3>";
-	
-	for(var i = 0; i < selected.length; i++){
-		HTML += "<p>"+selected[i].name+"</p>";
-	};
-	//HTML += "<button class=\"btn btn-danger has-spinner\" id=\"leave\" type=\"button\" onClick=\'removeUsers(\"" + selected[i].id + "\")'>Submit <span class=\"spinner\"><i class=\"icon-spin icon-refresh\"></i></span></button>  <button class=\"btn btn-normal has-spinner\" id=\"cancel\" type=\"button\" onClick=\"startOver()\">Cancel <span class=\"spinner\"><i class=\"icon-spin icon-refresh\"></i></span></button></div></div>";
-	HTML += "<button class=\"btn btn-danger has-spinner\" id=\"leave\" type=\"button\" onClick=\'removeUsers(\""+roomTitle+"\")'>Remove Users <span class=\"spinner\"><i class=\"icon-spin icon-refresh\"></i></span></button>  <button class=\"btn btn-normal has-spinner\" id=\"cancel\" type=\"button\" onClick=\"startOver()\">Cancel <span class=\"spinner\"><i class=\"icon-spin icon-refresh\"></i></span></button></div></div>";
-
-	$(".container").html(HTML);
-}
-
-function removeUsers(roomTitle){
-	console.log("selected passed to here: ", selected);
-	var count = 0;
-	var membershipId;
-	for (index in selected){
-		console.log("id: ", selected[index].value)
-		membershipId = selected[index].value;
-		$.ajax({
-			url: "https://api.ciscospark.com/v1/memberships/"+membershipId,
+	listRooms: function(){
+		return $.ajax({
+			url: "https://api.ciscospark.com/v1/memberships?max=1000",
 			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
 			cache: false,
-			method: "DELETE",
-			statusCode: {
-				204: function(){
-					count++;
+			method: "GET"
+		}).done($.proxy(function(rooms){
+			for(var i = 0; i < rooms.items.length; i++){
+				if (rooms.items[i].isModerator){
+					this.moderatedRooms.push({id: rooms.items[i].roomId, title: null, created: null, teamId: null, lastActivity: null});
+				} 
+			 }
+		 }, this));
+	},
+
+	getRoomDetails: function(roomId, index){
+		var _def = $.Deferred();
+		$.ajax({
+			 	url: "https://api.ciscospark.com/v1/rooms/"+roomId,
+		 	headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+		 	cache: false,
+		 	method: "GET"
+		}).done($.proxy(function(data){
+			this.moderatedRooms[index].title = data.title;
+			this.moderatedRooms[index].created = data.created;
+			this.moderatedRooms[index].lastActivity = data.lastActivity;
+			this.moderatedRooms[index].teamId = data.teamId;
+			_def.resolve();
+		}, this))
+		.fail(function(error){
+			//console.log(error);
+			_def.resolve();
+		});
+		return _def.promise();
+	},
+
+	displayRooms: function(){
+		var cleanList = [];
+		var i;
+		var HTML = "";
+		for(i = 0; i < this.moderatedRooms.length; i++){
+			if(this.moderatedRooms[i].title !== null && typeof this.moderatedRooms[i].title !== "undefined"){
+				cleanList.push(this.moderatedRooms[i]);
+			}
+		}
+		if(cleanList.length === 0){
+			HTML = '<div class="jumbotron"><h3>No rooms found.</h3><p>You must be the moderator of a room or team to remove users in bulk.</p>';
+			HTML += '<button class="btn btn-success" type="button" onclick=window.location=\x22powerpack.php\x22>Home</button>';
+		}else{
+			HTML = '<div class="row"><div class="col-md-12"><h2>Select Room to Remove Users from</h2><div class="form-group" id="roomForm" hidden><div><select name="rooms" id="rooms" class="form-control"><option value="">Select a room:</option></select></div></div>';
+		}
+
+		$(".container").html(HTML);
+		$("#removesel").hide();
+		$("#listRoomsSelf").hide();
+		$("#roomButton").toggleClass('active');
+		$("#step1a").show();
+		$("#listRoomsOthers").removeClass("active");
+
+		myRoomTitles = sortObjectBy(cleanList,"title","D");
+
+		for (i = 0; i < myRoomTitles.length; i++){
+			var roomName;
+			if(typeof myRoomTitles[i].teamId !== "undefined"){
+				roomName = myRoomTitles[i].title + " (This is a Team)";
+			}else{
+				roomName = myRoomTitles[i].title;
+			}
+			
+			var created = new Date(myRoomTitles[i].created);
+			var activity = new Date(myRoomTitles[i].lastActivity);
+			$("#rooms").append("<option value="+i+">"+roomName+"</option>");
+			}
+			
+		$("#roomForm").show();
+		$("#roomButton").hide();
+	},
+
+	getTeamMembers: function(teamId){
+		var _def = $.Deferred();
+		$.ajax({
+			url: "https://api.ciscospark.com/v1/team/memberships?max=1000&teamId="+teamId,
+			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+			cache: false,
+			method: "GET"
+		}).done($.proxy(function(data){
+			var usersList = [];
+			var yourself = localStorage.getItem("myEmail");
+
+			for (var i = 0; i < data.items.length; i++){
+				//Only push the contact if their email does not contain "bot@" which would indicate this is not a regular user, but a bot such as Cisco Security bot monitoring the room
+				if (data.items[i].personEmail.indexOf("bot@") ==-1 && data.items[i].personEmail != yourself && data.items[i].personEmail.indexOf("powerpack") ==-1){
+					usersList.push(data.items[i]);
+				}else if(data.items[i].personEmail.indexOf("powerpack")){
+					this.existingBots.push(data.items[i]);
 				}
-			}
-		}); //function()
-		$("#complete").show();
-		var HTML = "<div class=\"jumbotron\"><h3>Successfully removed the following users from "+roomTitle+" Room</h3><h5></h5>";
-		for(index in selected){
-			HTML += "<p>"+selected[index].name+"</p>";
-		};
-		HTML += '<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>';
-		//$("#complete").html(HTML);
-		$(".container").html(HTML);
-	} //for (index in selected)
-}
 
+			} //for (var i = 0; i< data.length; i++)
+			usersList = sortObjectBy(usersList,"personDisplayName","D");
+			_def.resolve(usersList);
+		}, this));
+		return _def.promise();
+	},
 
+	getUsers: function(roomId,roomTitle){
+		var _def = $.Deferred();
+		$.ajax({
+			url: "https://api.ciscospark.com/v1/memberships?max=1000&roomId="+roomId,
+			headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
+			cache: false,
+			method: "GET"
+		}).done($.proxy(function(data){
+			var usersList = [];
+			var yourself = localStorage.getItem("myEmail");
 
+			for (var i = 0; i < data.items.length; i++){
+				//Only push the contact if their email does not contain "bot@" which would indicate this is not a regular user, but a bot such as Cisco Security bot monitoring the room
+				if (data.items[i].personEmail.indexOf("bot@") ==-1 && data.items[i].personEmail != yourself && data.items[i].personEmail.indexOf("powerpack") ==-1){
+					usersList.push(data.items[i]);
+				}else if(data.items[i].personEmail.indexOf("powerpack")){
+					this.existingBots.push(data.items[i]);
+				}
 
-function listRoomsOthers(idTagVal){
-	var roomTitleList = [];
-	var HTML = '<div class="row"><div class="col-md-6"><h2>Select Room to Remove Users from</h2><div class="form-group" id="roomForm" hidden><div><select name="rooms" id="rooms" class="form-control"><option value="">Select a room:</option></select></div></div>'
-	$.ajax({
-		url: "https://api.ciscospark.com/v1/memberships",
-		headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-		cache: false,
-		method: "GET",
-		statusCode: {
-			502: function(){
-				$("#roomButton").hide();
-				$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
+			} //for (var i = 0; i< data.length; i++)
+			usersList = sortObjectBy(usersList,"personDisplayName","D");
+			_def.resolve(usersList);
+		}, this));
+		return _def.promise();
+	},
 
-			}
+	displayUsers: function(usersList, roomTitle){
+		var HTML = "";
+		if(typeof selectedRoom.teamId !== "undefined"){
+			HTML = '<div class="row"><div class="col-md-12"><h3>Select Users to Remove from the '+roomTitle+' Team</h3>';
+		}else{
+			HTML = '<div class="row"><div class="col-md-12"><h3>Select Users to Remove from '+roomTitle+' Room</h3>';
 		}
-	}).done(function(rooms){
-		console.log("returned data:", rooms);
-		var moderatorOfRoomId = [];
-		for(var i = 0; i < rooms['items'].length; i++){
-			console.log("Room Titles are: ",rooms['items'][i].title);
-			if (rooms['items'][i].isModerator){
-				moderatorOfRoomId.push(rooms['items'][i].roomId);
-			} // if (rooms['items'][i].isModerator)
-
-		 }// for(var i = 0; i < rooms['items'].length; i++)
-
-		console.log("You are the moderator of these rooms: ",moderatorOfRoomId);
-		$(".container").html(HTML);
-		doSomething(moderatorOfRoomId);
-	 });// done(function(rooms)
-
-}
-
-function doSomething(moderatorOfRoomId){
-	console.log("I'm in here: ", moderatorOfRoomId);
-
-	for(var i = 0; i < moderatorOfRoomId.length; i++){
-		//getRoomTitle(moderatorOfRoomId[i],(moderatorOfRoomId.length-i));
-		getRoomTitle(moderatorOfRoomId[i],(moderatorOfRoomId.length));
-		console.log("in here: ", myRoomTitles);
-
-	}
-
-}
-
-
-function getRoomTitle(roomID,numCalls){
-	console.log("moderatorOfRoomId passed: ", roomID);
-	
-
-	$.ajax({
-	url: "https://api.ciscospark.com/v1/rooms/"+roomID,
-	headers: {'Content-Type': 'application/json', 'Authorization': sparkToken},
-	cache: false,
-	method: "GET",
-	statusCode: {
-		502: function(){
-			//$("#roomButton").hide();
-			$("#step1a").append("<h2>Sorry, we could not access the API. Check the <a href='http://status.ciscospark.com' target='_blank'>Spark Status</a> and try again later.</h2>")
-
-		}
-		}
-	}).done(function(data){ 
-		console.log("numCalls passed: ", numCalls);
-		var roomTitle = data;
-		console.log("roomTitle: ", roomTitle);
-		myRoomTitles.push(roomTitle);
-		console.log("myRoomTitles.push(roomTitle) ", myRoomTitles);
-		//if (numCalls == 1){
-		console.log("myRoomTitles.length: ", myRoomTitles.length);
-		//make sure we have the number of roomTitles equaling the number of RoomId before we display the room Titles
-		if (myRoomTitles.length == numCalls){ 
-			console.log("I'm Done");
-			displayRoomTitles();
-		}
-	});
-
-	
-} //for main function
-
-
-function displayRoomTitles(){
-	console.log("myRoomTitles.push(roomTitle) in displayRoomTitles()", myRoomTitles);
-
-	$("#removesel").hide();
-	$("#listRoomsSelf").hide();
-	$("#roomButton").toggleClass('active');
-	$("#step1a").show();
-	$("#listRoomsOthers").removeClass("active");
-	console.log("myRoomTitles before sorting: ", myRoomTitles);
-	myRoomTitles = sortObjectBy(myRoomTitles,"title","D");
-	console.log("myRoomTitles after sorting: ", myRoomTitles);
-	for (var i =0; i < myRoomTitles.length; i++){
-		var roomName = myRoomTitles[i].title;
-		var created = new Date(myRoomTitles[i].created);
-		var activity = new Date(myRoomTitles[i].lastActivity);
-		$("#rooms").append("<option value="+i+">"+roomName+"</option>");
-		} // for (var i =0; i < myRoomTitles.length; i++)
 		
-	$("#roomForm").show();
-	$("#roomButton").hide();
+		HTML += '<table class="table table-striped" id="roomList"><thead><th><label><input type="checkbox" id="checkAll"/></lable></th><th>Name</th><th>Email</th></thead>';
+		var removeUsers = {};
+		for (var i = 0; i < usersList.length ; i++){
+			removeUsers = {name: usersList[i].personDisplayName, id: usersList[i].id};
+			HTML += "<tr><td><input type=\"checkbox\" name=\""+usersList[i].personDisplayName+"\" id=\"users"+i+"\" value=\""+usersList[i].id+"\"><td>"+usersList[i].personDisplayName+"</td><td>"+usersList[i].personEmail+"</td></tr>";
+		}
 
-}
+		HTML += "</table><button class=\"btn btn-danger\" id=\"leave\" type=\"button\" onClick=\'exodusUsers.reviewSelectedUsers(\""+roomTitle+"\")'>Review Selected Users</button>  <button class=\"btn btn-normal\" type=\"button\" onClick=\'window.location=\"exodus.php\"\'>Cancel</button></div></div>";
 
-function roomsClickOthers(){
-	//$("#listRoomsOthers").toggleClass('active');
-	$("#intro").remove();
-	var idTagVal = $("#listRoomsOthers").val();
-	console.log("idTagVal", idTagVal);
-	listRoomsOthers(idTagVal);
+		$(".container").html(HTML);
 
-}
+		$("#checkAll").change(function () {
+			$("input:checkbox").prop('checked', $(this).prop("checked"));
+		});
+	},
+
+	reviewSelectedUsers: function(roomTitle){
+		// record any selected
+		$("input:checked").each(function(){
+			selected.push(this);
+		});
+		var HTML = "";
+		if(typeof selectedRoom.teamId !== "undefined"){
+			HTML = '<div class="jumbotron"><h3>Are you sure you want to remove these users from the '+roomTitle+' Team?</h3>';
+		}else{
+			HTML = '<div class="jumbotron"><h3>Are you sure you want to remove these users from '+roomTitle+' room?</h3>';
+		}
+		for(var i = 0; i < selected.length; i++){
+			if(selected[i].value !== "on"){
+				this.removeList.push({personDisplayName: selected[i].name, membershipId: selected[i].value});
+				HTML += "<p><i class='glyphicon glyphicon-remove text-danger' style='syle: red;'></i> "+selected[i].name+"</p>";
+			}
+		}
+		HTML += '<button class="btn btn-danger" id="removeUsersClick" type="button">Remove Users</button>  <button class="btn btn-normal" id="cancel" type="button" onClick="startOver()">Cancel</button></div></div>';
+
+		$(".container").html(HTML);
+	},
+
+	removeSelectedUsers: function(){
+		$.ajax({
+			url: "https://sparkpowerpack.com:8443/removeContacts",
+			cache: false,
+			method: "POST",
+			dataType: 'json',
+			headers: { 'Content-Type': 'application/json' },
+			data: JSON.stringify({'removeList': this.removeList, 'roomId': selectedRoom.id, 'teamId': selectedRoom.teamId, 'roomName': selectedRoom.title, 'token': sparkToken, 'isLocked': true, 'email': localStorage.getItem('myEmail')})
+		}).done(function(data){
+			if(data.success){
+				$('.container').html('<h3 style="color: green;">'+data.success+'</h4><p>');
+			}
+			$('.container').append('<button class="btn btn-success" type="button" onclick=\'window.location="powerpack.php"\'>Home</button>');
+		});
+	}
+};
+
+// handle click on website.
+$(document).on('click', '#exodusUsers', function(e){
+	e.preventDefault();
+	exodusUsers.listRooms()
+	.then(function(){
+		var promises = [];
+		// loop through list of moderated rooms and get titles.
+		for(var index = 0; index < exodusUsers.moderatedRooms.length; index++){
+			var _def = exodusUsers.getRoomDetails(exodusUsers.moderatedRooms[index].id, index);
+			promises.push(_def);
+		}
+		return $.when.apply(undefined, promises).promise();
+	})
+	.then(function(){
+		exodusUsers.displayRooms();
+	});
+});
+
+// List users of selected room
+$(document.body).on('change', '#rooms' ,function(){
+  var i = $("#rooms").val();
+  selectedRoom = myRoomTitles[i];
+  if(typeof selectedRoom.teamId !== "undefined"){
+  	exodusUsers.getTeamMembers(selectedRoom.teamId)
+  	.then(function(userList){
+  		exodusUsers.displayUsers(userList, myRoomTitles[i].title);
+  	});
+  }else{
+  	exodusUsers.getUsers(myRoomTitles[i].id,myRoomTitles[i].title)
+  	.then(function(userList){
+  		exodusUsers.displayUsers(userList, myRoomTitles[i].title);
+  	});
+  }
+});
+
+$(document).on('click', '#removeUsersClick', function(e){
+	e.preventDefault();
+	exodusUsers.removeSelectedUsers(selectedRoom.title);
+});
 
 function startOver(){
 	selected = [];

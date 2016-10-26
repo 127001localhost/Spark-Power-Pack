@@ -8,7 +8,7 @@
 			<p>Remove yourself from multiple rooms at one time!<p>
 			<button class="btn btn-warning" id="listRooms" type="button">List Rooms</button>
 
-			<p>Remove mutiple users from a room at one time!<p>
+			<p>Remove multiple users from a room at one time!<p>
 			<button class="btn btn-warning" id="exodusUsers" value="removeOthers" type="button">List Rooms</button>
 		</div>
 	</div>
